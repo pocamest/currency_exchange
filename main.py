@@ -2,23 +2,39 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 from typing import Any
 
-FAKE_DB: dict[int, dict[str, Any]] = {}
+FAKE_DB: dict[int, dict[str, Any]] = {
+    0: {'name': "United States dollar", 'code': 'USD', "sign": "$"},
+    1: {"name": "Euro", "code": "EUR", "sign": "€"},
+}
+
+
+def get_all_currencies() -> list[dict[str, Any]]:
+    return [{'id': k} | v for k, v in FAKE_DB.items()]
+
+
+def get_currency(code_currency: str) -> dict[str, Any]:
+    for id, data in FAKE_DB.items():
+        if data['code'] == code_currency:
+            return {'id': id} | data
+    return {}
 
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/currencies':
-            payload = [
-                {'id': 0, 'name': "United States dollar", 'code': 'USD', "sign": "$"},
-                {"id": 1, "name": "Euro", "code": "EUR", "sign": "€"},
-            ]
+            payload = get_all_currencies()
             self._send_json_response(200, payload)
 
-        elif self.path == '/currencies/EUR':
-            payload = {
-                "id": 0, "name": "Euro", "code": "EUR", "sign": "€"
-            }
-            self._send_json_response(200, payload)
+        elif self.path.startswith('/currencies'):
+            try:
+                code_currency = self.path.split('/')[2]
+                payload = get_currency(code_currency)
+                if not payload:
+                    self._send_json_error(404, 'Ресурс не найден')
+                self._send_json_response(200, payload)
+            except IndexError:
+                self._send_json_error(404, 'Ресурс не найден')
+
         else:
             self._send_json_error(404, 'Ресурс не найден')
 
