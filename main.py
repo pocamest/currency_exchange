@@ -1,10 +1,10 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
 FAKE_DB: dict[int, dict[str, Any]] = {
-    0: {'name': "United States dollar", 'code': 'USD', "sign": "$"},
-    1: {"name": "Euro", "code": "EUR", "sign": "€"},
+    0: {'name': 'United States dollar', 'code': 'USD', 'sign': '$'},
+    1: {'name': 'Euro', 'code': 'EUR', 'sign': '€'},
 }
 
 
@@ -54,10 +54,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                         return
 
                 new_currency = {
-                    "id": data['id'],
-                    "name": data['name'],
-                    "code": data['code'],
-                    "sign": data['sign']
+                    'id': data['id'],
+                    'name': data['name'],
+                    'code': data['code'],
+                    'sign': data['sign'],
                 }
 
                 FAKE_DB[data['id']] = new_currency
@@ -71,22 +71,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._send_json_error(500, f'Внутренняя ошибка сервера: {e}')
 
     def _send_json_response(
-        self,
-        status_code: int,
-        payload: dict[str, Any] | list[dict[str, Any]]
+        self, status_code: int, payload: dict[str, Any] | list[dict[str, Any]]
     ):
         self.send_response(status_code)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(
-            json.dumps(payload, ensure_ascii=False).encode('utf-8')
-        )
+        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
 
-    def _send_json_error(
-        self,
-        status_code: int,
-        message: str
-    ):
+    def _send_json_error(self, status_code: int, message: str):
         error_payload = {'message': message}
         self._send_json_response(status_code, error_payload)
 

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from mixins import SQLiteConnectionMixin
 from typing import Any
+
+from mixins import SQLiteConnectionMixin
 
 
 class AbstractCurrencyRepository(ABC):
@@ -13,11 +14,7 @@ class AbstractCurrencyRepository(ABC):
         pass
 
 
-class SQLiteCurrencyRepository(
-    SQLiteConnectionMixin,
-    AbstractCurrencyRepository
-):
-
+class SQLiteCurrencyRepository(SQLiteConnectionMixin, AbstractCurrencyRepository):
     class Table:
         NAME = 'Currencies'
 
