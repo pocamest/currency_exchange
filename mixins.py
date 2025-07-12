@@ -2,7 +2,7 @@ import sqlite3
 
 
 class SQLiteConnectionMixin:
-    def __init__(self, db_path):
+    def __init__(self, db_path: str):
         self.db_path = db_path
 
     def _create_connection(self):
