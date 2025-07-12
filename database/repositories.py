@@ -1,28 +1,42 @@
 from abc import ABC, abstractmethod
-import sqlite3
+from mixins import SQLiteConnectionMixin
+from typing import Any
 
 
 class AbstractCurrencyRepository(ABC):
     @abstractmethod
-    def find_all(self):
+    def find_all(self) -> list[dict[str, Any]]:
         pass
 
     @abstractmethod
-    def find_by_code(self, code):
+    def find_by_code(self, code) -> dict[str, Any] | None:
         pass
 
 
-# подумать над названиями таблиц вынести ли х в переменные
-class SQLiteCurrencyRepository(AbstractCurrencyRepository):
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+class SQLiteCurrencyRepository(
+    SQLiteConnectionMixin,
+    AbstractCurrencyRepository
+):
 
-    def find_all(self):
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+    class Table:
+        NAME = 'Currencies'
+
+        ID = 'ID'
+        CODE = 'Code'
+        FULL_NAME = 'FullName'
+        SIGN = 'Sign'
+
+    def find_all(self) -> list[dict[str, Any]]:
+        with self._create_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM Currencies')
-            return cursor.fetchall()
+            query = f'SELECT * FROM {self.Table.NAME}'
+            cursor.execute(query)
+            return [dict(row) for row in cursor.fetchall()]
 
-    def find_by_code(self, code):
-        pass
+    def find_by_code(self, code) -> dict[str, Any] | None:
+        with self._create_connection() as conn:
+            cursor = conn.cursor()
+            query = f'SELECT * FROM {self.Table.NAME} WHERE {self.Table.CODE} = ?'
+            cursor.execute(query, (code,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
