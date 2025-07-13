@@ -6,20 +6,20 @@ from database.repositories import AbstractCurrencyRepository
 
 
 def create_handler(
-    currency_rep: AbstractCurrencyRepository,
+    currency_repo: AbstractCurrencyRepository,
 ) -> type[BaseHTTPRequestHandler]:
     class RequestHandler(BaseHTTPRequestHandler):
-        _currency_rep = currency_rep
+        _currency_repo = currency_repo
 
         def do_GET(self):
             if self.path == '/currencies':
-                payload = self._currency_rep.find_all()
+                payload = self._currency_repo.find_all()
                 self._send_json_response(200, payload)
 
             elif self.path.startswith('/currencies'):
                 try:
                     code_currency = self.path.split('/')[2]
-                    payload = self._currency_rep.find_by_code(code_currency)
+                    payload = self._currency_repo.find_by_code(code_currency)
                     if not payload:
                         self._send_json_error(404, 'Ресурс не найден')
                     self._send_json_response(200, payload)
@@ -44,7 +44,7 @@ def create_handler(
                             self._send_json_error(400, message)
                             return
 
-                    created_currency = self._currency_rep.create(
+                    created_currency = self._currency_repo.create(
                         data['code'], data['name'], data['sign']
                     )
 

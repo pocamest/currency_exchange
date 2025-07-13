@@ -7,8 +7,8 @@ from request_handler import create_handler
 
 def run_server(port=8000):
     server_address = ('', port)
-    currency_rep = SQLiteCurrencyRepository(DATABASE_PATH)
-    Handler = create_handler(currency_rep)
+    currency_repo = SQLiteCurrencyRepository(DATABASE_PATH)
+    Handler = create_handler(currency_repo)
     httpd = HTTPServer(server_address, Handler)
     try:
         httpd.serve_forever()
