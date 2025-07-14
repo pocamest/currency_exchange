@@ -2,7 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 from typing import Any
 
-from database.repositories import AbstractCurrencyRepository
+from data.interfaces import AbstractCurrencyRepository
 
 
 def create_handler(
@@ -22,6 +22,7 @@ def create_handler(
                     payload = self._currency_repo.find_by_code(code_currency)
                     if not payload:
                         self._send_json_error(404, 'Ресурс не найден')
+                        return
                     self._send_json_response(200, payload)
                 except IndexError:
                     self._send_json_error(404, 'Ресурс не найден')

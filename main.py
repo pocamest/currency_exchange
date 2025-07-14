@@ -1,15 +1,19 @@
 from http.server import HTTPServer
 
 from config import DATABASE_PATH
-from database.repositories import SQLiteCurrencyRepository
+from data.connection import SQLiteConnection
+from data.daos import SQLiteCurrenctDAO
+from data.repositories import SQLiteCurrencyRepository
 from request_handler import create_handler
 
 
 def run_server(port=8000):
     server_address = ('', port)
-    currency_repo = SQLiteCurrencyRepository(DATABASE_PATH)
-    Handler = create_handler(currency_repo)
-    httpd = HTTPServer(server_address, Handler)
+    currency_dao = SQLiteCurrenctDAO()
+    database_connection = SQLiteConnection(DATABASE_PATH)
+    currency_repo = SQLiteCurrencyRepository(currency_dao, database_connection)
+    handler_class = create_handler(currency_repo)
+    httpd = HTTPServer(server_address, handler_class)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
