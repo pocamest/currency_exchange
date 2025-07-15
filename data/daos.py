@@ -40,8 +40,10 @@ class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
                 )
                 VALUES (?, ?, ?)
             """
-        try:
-            cursor.execute(query, (code, full_name, sign))
-            return cursor.lastrowid
-        except sqlite3.IntegrityError:
-            raise
+        cursor.execute(query, (code, full_name, sign))
+        id = cursor.lastrowid
+        if not id:
+            raise sqlite3.OperationalError(
+                'Не удалось получить ID после вставки записи.'
+            )
+        return id
