@@ -5,7 +5,7 @@ from data import SQLiteConnectionFactory, SQLiteCurrencyDAO, SQLiteCurrencyRepos
 from request_handler import create_handler
 
 
-def run_server(port=8000):
+def run_server(port: int =8000) -> None:
     server_address = ('', port)
     currency_dao = SQLiteCurrencyDAO()
     connection_factory = SQLiteConnectionFactory(DATABASE_PATH)

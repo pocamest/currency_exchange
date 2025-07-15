@@ -1,3 +1,4 @@
+import sqlite3
 from typing import Any
 
 from data.interfaces import (
@@ -10,8 +11,8 @@ from data.interfaces import (
 class SQLiteCurrencyRepository(AbstractCurrencyRepository):
     def __init__(
         self,
-        currency_dao: AbstractCurrencyDAO,
-        connection_factory: AbstractConnectionFactory,
+        currency_dao: AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row],
+        connection_factory: AbstractConnectionFactory[sqlite3.Connection],
     ):
         self.currency_dao = currency_dao
         self.factory = connection_factory

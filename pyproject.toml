@@ -17,8 +17,7 @@ dev = [
 [tool.mypy]
 
 python_version = "3.13"
-warn_no_return = true
-warn_unused_ignores = true
+strict = true
 ignore_missing_imports = true
 
 [tool.ruff]

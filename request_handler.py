@@ -11,7 +11,7 @@ def create_handler(
     class RequestHandler(BaseHTTPRequestHandler):
         _currency_repo = currency_repo
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             if self.path == '/currencies':
                 payload = self._currency_repo.find_all()
                 self._send_json_response(200, payload)
@@ -30,7 +30,7 @@ def create_handler(
             else:
                 self._send_json_error(404, 'Ресурс не найден')
 
-        def do_POST(self):
+        def do_POST(self) -> None:
             if self.path == '/currencies':
                 try:
                     content_length = int(self.headers.get('Content-Length', 0))
@@ -59,13 +59,13 @@ def create_handler(
 
         def _send_json_response(
             self, status_code: int, payload: dict[str, Any] | list[dict[str, Any]]
-        ):
+        ) -> None:
             self.send_response(status_code)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
 
-        def _send_json_error(self, status_code: int, message: str):
+        def _send_json_error(self, status_code: int, message: str) -> None:
             error_payload = {'message': message}
             self._send_json_response(status_code, error_payload)
 

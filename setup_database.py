@@ -3,7 +3,7 @@ import sqlite3
 from config import DATABASE_PATH
 
 
-def create_tables(cursor: sqlite3.Cursor):
+def create_tables(cursor: sqlite3.Cursor) -> None:
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Currencies (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,7 @@ def create_tables(cursor: sqlite3.Cursor):
     """)
 
 
-def insert_tables(cursor: sqlite3.Cursor):
+def insert_tables(cursor: sqlite3.Cursor) -> None:
     cursor.execute('SELECT COUNT(*) FROM Currencies')
     if cursor.fetchone()[0] == 0:
         currencies_data = [('USD', 'United States dollar', '$'), ('EUR', 'Euro', '€')]
@@ -50,7 +50,7 @@ def insert_tables(cursor: sqlite3.Cursor):
             print('Ошибка: Не удалось найти ID для начальных валют.')
 
 
-def setup():
+def setup() -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
         conn.execute('PRAGMA foreign_keys = ON')
         cursor = conn.cursor()
