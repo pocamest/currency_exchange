@@ -1,9 +1,7 @@
 from http.server import HTTPServer
 
 from config import DATABASE_PATH
-from data.connection import SQLiteConnectionFactory
-from data.daos import SQLiteCurrencyDAO
-from data.repositories import SQLiteCurrencyRepository
+from data import SQLiteConnectionFactory, SQLiteCurrencyDAO, SQLiteCurrencyRepository
 from request_handler import create_handler
 
 

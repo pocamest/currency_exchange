@@ -1,6 +1,6 @@
 from typing import Any
 
-from .interfaces import (
+from data.interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,

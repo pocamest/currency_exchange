@@ -1,6 +1,6 @@
 import sqlite3
 
-from .interfaces import AbstractConnectionFactory
+from data.interfaces import AbstractConnectionFactory
 
 
 class SQLiteConnectionFactory(AbstractConnectionFactory[sqlite3.Connection]):

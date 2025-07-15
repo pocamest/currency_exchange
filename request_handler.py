@@ -2,7 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 from typing import Any
 
-from data.interfaces import AbstractCurrencyRepository
+from data import AbstractCurrencyRepository
 
 
 def create_handler(
