@@ -21,19 +21,19 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             rows = self.currency_dao.fetch_all(cursor)
-            return [Currency(**row) for row in rows]
+            return [Currency.model_validate(dict(row)) for row in rows]
 
     def find_by_code(self, code: str) -> Currency | None:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             row = self.currency_dao.fetch_by_code(cursor, code)
-            return Currency(**row) if row else None
+            return Currency.model_validate(dict(row)) if row else None
 
     def find_by_id(self, id: int) -> Currency | None:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             row = self.currency_dao.fetch_by_id(cursor, id)
-            return Currency(**row) if row else None
+            return Currency.model_validate(dict(row)) if row else None
 
     def create(self, code: str, full_name: str, sign: str) -> Currency:
         with self.factory.create_connection() as conn:
@@ -42,4 +42,4 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             created_currency = self.currency_dao.fetch_by_id(cursor, created_id)
             if created_currency is None:
                 raise Exception('Не удалось найти только что созданную валюту')
-            return Currency(**created_currency)
+            return Currency.model_validate(created_currency)

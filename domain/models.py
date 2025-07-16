@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class Currency(BaseModel):
     id: int = Field(alias='ID')
-    name: str = Field(alias='FullName')
+    full_name: str = Field(alias='FullName', serialization_alias='name')
     code: str = Field(alias='Code')
     sign: str = Field(alias='Sign')
 

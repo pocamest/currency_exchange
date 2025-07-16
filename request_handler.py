@@ -1,6 +1,5 @@
 import json
 from http.server import BaseHTTPRequestHandler
-from typing import Any
 
 from data import AbstractCurrencyRepository
 from domain import Currency
@@ -20,7 +19,9 @@ def create_handler(
             elif self.path.startswith('/currencies'):
                 try:
                     code_currency = self.path.split('/')[2]
-                    payload: Currency | None = self._currency_repo.find_by_code(code_currency)
+                    payload: Currency | None = self._currency_repo.find_by_code(
+                        code_currency
+                    )
                     if not payload:
                         self._send_json_error(404, 'Ресурс не найден')
                         return
@@ -65,9 +66,11 @@ def create_handler(
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             if isinstance(payload, list):
-                payload_json = f'[{','.join(x.model_dump_json() for x in payload)}]'
+                payload_json = (
+                    f'[{",".join(x.model_dump_json(by_alias=True) for x in payload)}]'
+                )
             else:
-                payload_json = payload.model_dump_json()
+                payload_json = payload.model_dump_json(by_alias=True)
             self.wfile.write((payload_json).encode('utf-8'))
 
         def _send_json_error(self, status_code: int, message: str) -> None:
@@ -75,6 +78,8 @@ def create_handler(
             self.send_response(status_code)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(error_payload, ensure_ascii=False).encode('utf-8'))
+            self.wfile.write(
+                json.dumps(error_payload, ensure_ascii=False).encode('utf-8')
+            )
 
     return RequestHandler
