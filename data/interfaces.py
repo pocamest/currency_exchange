@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import TypeVar
+
+from domain import Currency
 
 CursorType = TypeVar('CursorType')
 RowType = TypeVar('RowType')
@@ -32,17 +34,17 @@ class AbstractCurrencyDAO[CursorType, RowType](ABC):
 
 class AbstractCurrencyRepository(ABC):
     @abstractmethod
-    def find_all(self) -> list[dict[str, Any]]:
+    def find_all(self) -> list[Currency]:
         pass
 
     @abstractmethod
-    def find_by_code(self, code: str) -> dict[str, Any] | None:
+    def find_by_code(self, code: str) -> Currency | None:
         pass
 
     @abstractmethod
-    def find_by_id(self, id: int) -> dict[str, Any] | None:
+    def find_by_id(self, id: int) -> Currency | None:
         pass
 
     @abstractmethod
-    def create(self, code: str, full_name: str, sign: str) -> dict[str, Any]:
+    def create(self, code: str, full_name: str, sign: str) -> Currency:
         pass

@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler
 from typing import Any
 
 from data import AbstractCurrencyRepository
+from domain import Currency
 
 
 def create_handler(
@@ -13,13 +14,13 @@ def create_handler(
 
         def do_GET(self) -> None:
             if self.path == '/currencies':
-                payload = self._currency_repo.find_all()
+                payload: list[Currency] = self._currency_repo.find_all()
                 self._send_json_response(200, payload)
 
             elif self.path.startswith('/currencies'):
                 try:
                     code_currency = self.path.split('/')[2]
-                    payload = self._currency_repo.find_by_code(code_currency)
+                    payload: Currency | None = self._currency_repo.find_by_code(code_currency)
                     if not payload:
                         self._send_json_error(404, 'Ресурс не найден')
                         return
@@ -58,15 +59,22 @@ def create_handler(
                     self._send_json_error(500, f'Внутренняя ошибка сервера: {e}')
 
         def _send_json_response(
-            self, status_code: int, payload: dict[str, Any] | list[dict[str, Any]]
+            self, status_code: int, payload: Currency | list[Currency]
         ) -> None:
             self.send_response(status_code)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
+            if isinstance(payload, list):
+                payload_json = f'[{','.join(x.model_dump_json() for x in payload)}]'
+            else:
+                payload_json = payload.model_dump_json()
+            self.wfile.write((payload_json).encode('utf-8'))
 
         def _send_json_error(self, status_code: int, message: str) -> None:
             error_payload = {'message': message}
-            self._send_json_response(status_code, error_payload)
+            self.send_response(status_code)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_payload, ensure_ascii=False).encode('utf-8'))
 
     return RequestHandler

@@ -1,11 +1,11 @@
 import sqlite3
-from typing import Any
 
 from data.interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
 )
+from domain import Currency
 
 
 class SQLiteCurrencyRepository(AbstractCurrencyRepository):
@@ -17,29 +17,29 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
         self.currency_dao = currency_dao
         self.factory = connection_factory
 
-    def find_all(self) -> list[dict[str, Any]]:
+    def find_all(self) -> list[Currency]:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             rows = self.currency_dao.fetch_all(cursor)
-            return [dict(row) for row in rows]
+            return [Currency(**row) for row in rows]
 
-    def find_by_code(self, code: str) -> dict[str, Any] | None:
+    def find_by_code(self, code: str) -> Currency | None:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             row = self.currency_dao.fetch_by_code(cursor, code)
-            return dict(row) if row else None
+            return Currency(**row) if row else None
 
-    def find_by_id(self, id: int) -> dict[str, Any] | None:
+    def find_by_id(self, id: int) -> Currency | None:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             row = self.currency_dao.fetch_by_id(cursor, id)
-            return dict(row) if row else None
+            return Currency(**row) if row else None
 
-    def create(self, code: str, full_name: str, sign: str) -> dict[str, Any]:
+    def create(self, code: str, full_name: str, sign: str) -> Currency:
         with self.factory.create_connection() as conn:
             cursor = conn.cursor()
             created_id = self.currency_dao.insert(cursor, code, full_name, sign)
             created_currency = self.currency_dao.fetch_by_id(cursor, created_id)
             if created_currency is None:
                 raise Exception('Не удалось найти только что созданную валюту')
-            return dict(created_currency)
+            return Currency(**created_currency)
