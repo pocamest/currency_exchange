@@ -42,4 +42,4 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             created_currency = self.currency_dao.fetch_by_id(cursor, created_id)
             if created_currency is None:
                 raise Exception('Не удалось найти только что созданную валюту')
-            return Currency.model_validate(created_currency)
+            return Currency.model_validate(dict(created_currency))
