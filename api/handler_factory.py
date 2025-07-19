@@ -1,4 +1,5 @@
 import json
+from urllib.parse import parse_qs
 from http.server import BaseHTTPRequestHandler
 
 from api.dtos import BaseDTO, ErrorDTO
@@ -22,7 +23,10 @@ def create_handler(router: Router) -> type[BaseHTTPRequestHandler]:
                 content_length = int(self.headers.get('Content-Length', 0))
                 post_data = self.rfile.read(content_length)
 
-                data = json.loads(post_data.decode('utf-8'))
+                parsed_data = parse_qs(post_data.decode('utf-8'))
+
+                data = {key: value[0] for key, value in parsed_data.items()}
+
                 handler = self._router.resolve(method=self.command, path=self.path)
                 if not handler:
                     self._send_json_error(404, 'Ресурс не найден')
