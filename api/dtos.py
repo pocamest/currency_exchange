@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseDTO(BaseModel):
@@ -6,9 +6,13 @@ class BaseDTO(BaseModel):
 
 class CurrencyReadDTO(BaseDTO):
     id: int
-    name: str
+    name: str = Field(validation_alias='full_name')
     code: str
     sign: str
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
 
 class CurrencyCreateDTO(BaseDTO):
