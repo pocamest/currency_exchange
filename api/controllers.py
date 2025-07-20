@@ -17,6 +17,13 @@ class CurrencyController:
         ]
         return 200, response_dto
 
+    def get_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
+        currency = self._repo.find_by_code(code=code)
+        if not currency:
+            return 404, ErrorDTO(message='Валюта не найдена')
+        response_dto = CurrencyReadDTO.model_validate(currency)
+        return 200, response_dto
+
     def create_currency(
         self, data: dict[str, Any]
     ) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
