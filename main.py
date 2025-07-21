@@ -16,10 +16,19 @@ def run_server(port: int = 8000) -> None:
     currency_controller = CurrencyController(currency_repo)
     router = Router()
     router.add_route(
-        method='GET', path='/currencies', handler=currency_controller.get_all,
+        method='GET',
+        path='/currencies/',
+        handler=currency_controller.get_all,
     )
     router.add_route(
-        method='POST', path='/currencies', handler=currency_controller.create_currency,
+        method='POST',
+        path='/currencies/',
+        handler=currency_controller.create_currency,
+    )
+    router.add_route(
+        method='GET',
+        path='/currencies/{code}',
+        handler=currency_controller.get_by_code,
     )
     handler_class = create_handler(router)
     httpd = HTTPServer(server_address, handler_class)

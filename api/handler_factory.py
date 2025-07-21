@@ -1,6 +1,6 @@
 import json
-from urllib.parse import parse_qs
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import parse_qs
 
 from api.dtos import BaseDTO, ErrorDTO
 from api.router import Router
@@ -11,11 +11,13 @@ def create_handler(router: Router) -> type[BaseHTTPRequestHandler]:
         _router = router
 
         def do_GET(self) -> None:
-            handler = self._router.resolve(method=self.command, path=self.path)
-            if not handler:
+            handler, path_params = self._router.resolve(
+                method=self.command, path=self.path
+            )
+            if not handler or path_params is None:
                 self._send_json_error(404, 'Ресурс не найден')
                 return
-            status_code, payload = handler()
+            status_code, payload = handler(**path_params)
             self._send_json_response(status_code=status_code, payload=payload)
 
         def do_POST(self) -> None:
@@ -25,13 +27,15 @@ def create_handler(router: Router) -> type[BaseHTTPRequestHandler]:
 
                 parsed_data = parse_qs(post_data.decode('utf-8'))
 
-                data = {key: value[0] for key, value in parsed_data.items()}
+                body = {key: value[0] for key, value in parsed_data.items()}
 
-                handler = self._router.resolve(method=self.command, path=self.path)
-                if not handler:
+                handler, path_params = self._router.resolve(
+                    method=self.command, path=self.path
+                )
+                if not handler or path_params is None:
                     self._send_json_error(404, 'Ресурс не найден')
                     return
-                status_code, payload = handler(data)
+                status_code, payload = handler(body=body, **path_params)
                 self._send_json_response(status_code=status_code, payload=payload)
             except Exception as e:
                 self._send_json_error(500, f'Внутренняя ошибка сервера: {e}')

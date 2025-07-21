@@ -25,10 +25,10 @@ class CurrencyController:
         return 200, response_dto
 
     def create_currency(
-        self, data: dict[str, Any]
+        self, body: dict[str, Any]
     ) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
         try:
-            request_dto = CurrencyCreateDTO(**data)
+            request_dto = CurrencyCreateDTO(**body)
         except ValidationError:
             return 400, ErrorDTO(
                 message='Неверные или отсутствующие данные в теле запроса'
