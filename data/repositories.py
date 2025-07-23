@@ -16,32 +16,32 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
         currency_dao: AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row],
         connection_factory: AbstractConnectionFactory[sqlite3.Connection],
     ):
-        self.currency_dao = currency_dao
-        self.factory = connection_factory
+        self._currency_dao = currency_dao
+        self._factory = connection_factory
 
     def find_all(self) -> list[Currency]:
-        with self.factory.create_connection() as conn:
+        with self._factory.create_connection() as conn:
             cursor = conn.cursor()
-            rows = self.currency_dao.fetch_all(cursor)
+            rows = self._currency_dao.fetch_all(cursor)
             return [Currency.model_validate(dict(row)) for row in rows]
 
     def find_by_code(self, code: str) -> Currency | None:
-        with self.factory.create_connection() as conn:
+        with self._factory.create_connection() as conn:
             cursor = conn.cursor()
-            row = self.currency_dao.fetch_by_code(cursor, code)
+            row = self._currency_dao.fetch_by_code(cursor, code)
             return Currency.model_validate(dict(row)) if row else None
 
     def find_by_id(self, id: int) -> Currency | None:
-        with self.factory.create_connection() as conn:
+        with self._factory.create_connection() as conn:
             cursor = conn.cursor()
-            row = self.currency_dao.fetch_by_id(cursor, id)
+            row = self._currency_dao.fetch_by_id(cursor, id)
             return Currency.model_validate(dict(row)) if row else None
 
     def create(self, code: str, full_name: str, sign: str) -> Currency:
-        with self.factory.create_connection() as conn:
+        with self._factory.create_connection() as conn:
             cursor = conn.cursor()
-            created_id = self.currency_dao.insert(cursor, code, full_name, sign)
-            created_currency = self.currency_dao.fetch_by_id(cursor, created_id)
+            created_id = self._currency_dao.insert(cursor, code, full_name, sign)
+            created_currency = self._currency_dao.fetch_by_id(cursor, created_id)
             if created_currency is None:
                 raise Exception('Не удалось найти только что созданную валюту')
             return Currency.model_validate(dict(created_currency))
