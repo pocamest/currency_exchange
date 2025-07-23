@@ -7,18 +7,18 @@ from data import AbstractCurrencyRepository
 
 
 class CurrencyController:
-    def __init__(self, repo: AbstractCurrencyRepository):
-        self._repo = repo
+    def __init__(self, currency_repo: AbstractCurrencyRepository):
+        self._currency_repo = currency_repo
 
     def get_all(self) -> tuple[int, list[CurrencyReadDTO]]:
-        currencies = self._repo.find_all()
+        currencies = self._currency_repo.find_all()
         response_dto = [
             CurrencyReadDTO.model_validate(c) for c in currencies
         ]
         return 200, response_dto
 
     def get_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
-        currency = self._repo.find_by_code(code=code)
+        currency = self._currency_repo.find_by_code(code=code)
         if not currency:
             return 404, ErrorDTO(message='Валюта не найдена')
         response_dto = CurrencyReadDTO.model_validate(currency)
@@ -34,7 +34,7 @@ class CurrencyController:
                 message='Неверные или отсутствующие данные в теле запроса'
             )
 
-        created_currency = self._repo.create(
+        created_currency = self._currency_repo.create(
             code=request_dto.code, full_name=request_dto.name, sign=request_dto.sign
         )
         response_dto = CurrencyReadDTO.model_validate(created_currency)
