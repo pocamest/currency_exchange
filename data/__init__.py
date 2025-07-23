@@ -4,8 +4,9 @@ from .interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
+    AbstractExcangeRateRepository,
 )
-from .repositories import SQLiteCurrencyRepository
+from .repositories import SQLiteCurrencyRepository, SQLiteExchangeRatesRepository
 
 __all__ = [
     'SQLiteConnectionFactory',
@@ -14,4 +15,6 @@ __all__ = [
     'AbstractCurrencyDAO',
     'AbstractCurrencyRepository',
     'SQLiteCurrencyRepository',
+    'AbstractExcangeRateRepository',
+    'SQLiteExchangeRatesRepository',
 ]

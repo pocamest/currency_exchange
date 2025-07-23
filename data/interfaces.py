@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from domain import Currency
+from domain import Currency, ExchangeRate
 
 CursorType = TypeVar('CursorType')
 RowType = TypeVar('RowType')
@@ -47,4 +47,16 @@ class AbstractCurrencyRepository(ABC):
 
     @abstractmethod
     def create(self, code: str, full_name: str, sign: str) -> Currency:
+        pass
+
+
+class AbstractExchangeRateDAO[CursorType, RowType](ABC):
+    @abstractmethod
+    def fetch_all(self, cursor: CursorType) -> list[RowType]:
+        pass
+
+
+class AbstractExcangeRateRepository(ABC):
+    @abstractmethod
+    def find_all(self) -> list[ExchangeRate]:
         pass

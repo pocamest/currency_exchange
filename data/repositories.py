@@ -4,8 +4,10 @@ from data.interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
+    AbstractExcangeRateRepository,
+    AbstractExchangeRateDAO,
 )
-from domain import Currency
+from domain import Currency, ExchangeRate
 
 
 class SQLiteCurrencyRepository(AbstractCurrencyRepository):
@@ -43,3 +45,19 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             if created_currency is None:
                 raise Exception('Не удалось найти только что созданную валюту')
             return Currency.model_validate(dict(created_currency))
+
+
+class SQLiteExchangeRatesRepository(AbstractExcangeRateRepository):
+    def __init__(
+        self,
+        exchange_rate_dao: AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row],
+        connection_factory: AbstractConnectionFactory[sqlite3.Connection],
+    ):
+        self._exchange_rate_dao = exchange_rate_dao
+        self._factory = connection_factory
+
+    def find_all(self) -> list[ExchangeRate]:
+        with self._factory.create_connection() as conn:
+            cursor = conn.cursor()
+            rows = self._exchange_rate_dao.fetch_all(cursor)
+            return [ExchangeRate.model_validate(dict(row)) for row in rows]

@@ -1,6 +1,6 @@
 import sqlite3
 
-from data.interfaces import AbstractCurrencyDAO
+from data.interfaces import AbstractCurrencyDAO, AbstractExchangeRateDAO
 
 
 class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
@@ -47,3 +47,18 @@ class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
                 'Не удалось получить ID после вставки записи.'
             )
         return id
+
+
+class SQLiteExchangeRatesDAO(AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row]):
+    class Table:
+        NAME = 'ExchangeRates'
+
+        ID = 'ID'
+        BASE_CURRENCY_ID = 'BaseCurrencyId'
+        TARGET_CURRENCY_ID = 'Target_Currency_Id'
+        RATE = 'Rate'
+
+    def fetch_all(self, cursor: sqlite3.Cursor) -> list[sqlite3.Row]:
+        query = f'SELECT * FROM {self.Table.NAME}'
+        cursor.execute(query)
+        return cursor.fetchall()
