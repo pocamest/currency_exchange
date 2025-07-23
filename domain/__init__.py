@@ -1,5 +1,6 @@
-from .models import Currency
+from .models import Currency, ExchangeRate
 
 __all__ = [
-    'Currency'
+    'Currency',
+    'ExchangeRate'
 ]

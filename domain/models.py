@@ -12,7 +12,7 @@ class Currency(BaseModel):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
-class ExchangeRates(BaseModel):
+class ExchangeRate(BaseModel):
     id: int = Field(alias='ID')
     base_currency_id: int = Field(alias='BaseCurrencyId')
     target_currency_id: int = Field(alias='TargetCurrencyId')
