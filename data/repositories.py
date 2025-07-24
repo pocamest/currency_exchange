@@ -1,13 +1,14 @@
 import sqlite3
 
-from data.interfaces import (
+from domain import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
     AbstractExcangeRateRepository,
     AbstractExchangeRateDAO,
+    Currency,
+    ExchangeRate,
 )
-from domain import Currency, ExchangeRate
 
 
 class SQLiteCurrencyRepository(AbstractCurrencyRepository):

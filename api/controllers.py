@@ -3,7 +3,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from api.dtos import CurrencyCreateDTO, CurrencyReadDTO, ErrorDTO
-from data import AbstractCurrencyRepository
+from domain import AbstractCurrencyRepository
 
 
 class CurrencyController:

@@ -1,6 +1,6 @@
 import sqlite3
 
-from data.interfaces import AbstractCurrencyDAO, AbstractExchangeRateDAO
+from domain import AbstractCurrencyDAO, AbstractExchangeRateDAO
 
 
 class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):

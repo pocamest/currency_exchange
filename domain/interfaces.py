@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from domain import Currency, ExchangeRate
+from domain.models import Currency, ExchangeRate
 
 CursorType = TypeVar('CursorType')
 RowType = TypeVar('RowType')
