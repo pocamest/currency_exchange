@@ -10,14 +10,14 @@ class CurrencyController:
     def __init__(self, currency_repo: AbstractCurrencyRepository):
         self._currency_repo = currency_repo
 
-    def get_all(self) -> tuple[int, list[CurrencyReadDTO]]:
+    def get_all_currencies(self) -> tuple[int, list[CurrencyReadDTO]]:
         currencies = self._currency_repo.find_all()
         response_dto = [
             CurrencyReadDTO.model_validate(c) for c in currencies
         ]
         return 200, response_dto
 
-    def get_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
+    def get_currency_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
         currency = self._currency_repo.find_by_code(code=code)
         if not currency:
             return 404, ErrorDTO(message='Валюта не найдена')
