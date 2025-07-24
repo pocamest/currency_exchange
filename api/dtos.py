@@ -21,5 +21,11 @@ class CurrencyCreateDTO(BaseDTO):
     sign: str
 
 
+class ExchangeRateReadDTO(BaseDTO):
+    id: int
+    base_currency: CurrencyReadDTO = Field(alias='baseCurrency')
+    target_currency: CurrencyReadDTO = Field(alias='targetCurrency')
+
+
 class ErrorDTO(BaseDTO):
     message: str
