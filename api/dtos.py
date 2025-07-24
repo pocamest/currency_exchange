@@ -1,8 +1,11 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseDTO(BaseModel):
     pass
+
 
 class CurrencyReadDTO(BaseDTO):
     id: int
@@ -10,9 +13,7 @@ class CurrencyReadDTO(BaseDTO):
     code: str
     sign: str
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CurrencyCreateDTO(BaseDTO):
@@ -25,6 +26,7 @@ class ExchangeRateReadDTO(BaseDTO):
     id: int
     base_currency: CurrencyReadDTO = Field(alias='baseCurrency')
     target_currency: CurrencyReadDTO = Field(alias='targetCurrency')
+    rate: Decimal = Field(alias='Rate')
 
 
 class ErrorDTO(BaseDTO):
