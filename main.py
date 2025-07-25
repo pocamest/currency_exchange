@@ -3,6 +3,7 @@ from http.server import HTTPServer
 from api import CurrencyController, Router, create_handler
 from config import DATABASE_PATH
 from data import SQLiteConnectionFactory, SQLiteCurrencyDAO, SQLiteCurrencyRepository
+from domain import CurrencyService
 
 
 def run_server(port: int = 8000) -> None:
@@ -13,12 +14,13 @@ def run_server(port: int = 8000) -> None:
         currency_dao=currency_dao,
         connection_factory=connection_factory,
     )
-    currency_controller = CurrencyController(currency_repo)
+    currency_service = CurrencyService(currency_repo)
+    currency_controller = CurrencyController(currency_service)
     router = Router()
     router.add_route(
         method='GET',
         path='/currencies/',
-        handler=currency_controller.get_all,
+        handler=currency_controller.get_all_currencies,
     )
     router.add_route(
         method='POST',
@@ -28,7 +30,7 @@ def run_server(port: int = 8000) -> None:
     router.add_route(
         method='GET',
         path='/currencies/{code}',
-        handler=currency_controller.get_by_code,
+        handler=currency_controller.get_currency_by_code,
     )
     handler_class = create_handler(router)
     httpd = HTTPServer(server_address, handler_class)

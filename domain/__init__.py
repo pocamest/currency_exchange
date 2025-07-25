@@ -1,3 +1,4 @@
+from .exceptions import NotFoundError
 from .interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
@@ -6,6 +7,7 @@ from .interfaces import (
     AbstractExchangeRateDAO,
 )
 from .models import Currency, ExchangeRate
+from .services import CurrencyService
 
 __all__ = [
     'Currency',
@@ -15,4 +17,6 @@ __all__ = [
     'AbstractCurrencyRepository',
     'AbstractExchangeRateDAO',
     'AbstractExcangeRateRepository',
+    'CurrencyService',
+    'NotFoundError',
 ]
