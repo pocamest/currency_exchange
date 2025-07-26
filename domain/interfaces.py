@@ -28,6 +28,10 @@ class AbstractCurrencyDAO[CursorType, RowType](ABC):
         pass
 
     @abstractmethod
+    def fetch_by_ids(self, cursor: CursorType, ids: list[int]) -> list[RowType]:
+        pass
+
+    @abstractmethod
     def insert(self, cursor: CursorType, code: str, full_name: str, sign: str) -> int:
         pass
 
@@ -43,6 +47,10 @@ class AbstractCurrencyRepository(ABC):
 
     @abstractmethod
     def find_by_id(self, id: int) -> Currency | None:
+        pass
+
+    @abstractmethod
+    def find_by_ids(self, ids: list[int]) -> list[Currency]:
         pass
 
     @abstractmethod
