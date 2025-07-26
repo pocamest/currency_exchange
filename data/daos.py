@@ -29,6 +29,14 @@ class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
         row = cursor.fetchone()
         return row if row else None
 
+    def fetch_by_ids(self, cursor: sqlite3.Cursor, ids: list[int]) -> list[sqlite3.Row]:
+        if not ids:
+            return []
+        pattern = ', '.join('?' for _ in ids)
+        query = f'SELECT * FROM {self.Table.NAME} WHERE {self.Table.ID} IN ({pattern})'
+        cursor.execute(query, ids)
+        return cursor.fetchall()
+
     def insert(
         self, cursor: sqlite3.Cursor, code: str, full_name: str, sign: str
     ) -> int:
