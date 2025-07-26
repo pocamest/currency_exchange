@@ -38,6 +38,12 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             row = self._currency_dao.fetch_by_id(cursor, id)
             return Currency.model_validate(dict(row)) if row else None
 
+    def find_by_ids(self, ids: list[int]) -> list[Currency]:
+        with self._factory.create_connection() as conn:
+            cursor = conn.cursor()
+            rows = self._currency_dao.fetch_by_ids(cursor, ids)
+            return [Currency.model_validate(dict(row)) for row in rows]
+
     def create(self, code: str, full_name: str, sign: str) -> Currency:
         with self._factory.create_connection() as conn:
             cursor = conn.cursor()
