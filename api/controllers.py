@@ -41,8 +41,8 @@ class CurrencyController:
 
 
 class ExchangeRateController:
-    def __init__(self, exchange_rate_controller: ExchangeRateService):
-        self._exchange_rate_service = exchange_rate_controller
+    def __init__(self, exchange_rate_service: ExchangeRateService):
+        self._exchange_rate_service = exchange_rate_service
 
     def get_all_exchange_rates(self) -> tuple[int, list[ExchangeRateReadDTO]]:
         exchange_rates = self._exchange_rate_service.get_all_full_exchange_rates()

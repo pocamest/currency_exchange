@@ -39,7 +39,7 @@ def run_server(port: int = 8000) -> None:
     register_routes(
         router=router,
         currency_controller=currency_controller,
-        exchange_rate_conroller=exchange_rate_controller,
+        exchange_rate_controller=exchange_rate_controller,
     )
     handler_class = create_handler(router)
     httpd = HTTPServer(server_address, handler_class)

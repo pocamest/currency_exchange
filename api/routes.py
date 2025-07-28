@@ -5,7 +5,7 @@ from api.router import Router
 def register_routes(
     router: Router,
     currency_controller: CurrencyController,
-    exchange_rate_conroller: ExchangeRateController,
+    exchange_rate_controller: ExchangeRateController,
 ) -> None:
     router.add_route(
         method='GET',
@@ -25,5 +25,5 @@ def register_routes(
     router.add_route(
         method='GET',
         path='/exchangeRates/',
-        handler=exchange_rate_conroller.get_all_exchange_rates,
+        handler=exchange_rate_controller.get_all_exchange_rates,
     )

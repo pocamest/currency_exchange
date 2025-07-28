@@ -26,13 +26,13 @@ class ExchangeRateService:
         exchange_rate_repo: AbstractExcangeRateRepository,
         currency_repo: AbstractCurrencyRepository,
     ) -> None:
-        self._exhange_rate_repo = exchange_rate_repo
+        self._exсhange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
 
     def get_all_full_exchange_rates(
         self,
     ) -> list[tuple[ExchangeRate, Currency, Currency]]:
-        exchange_rates = self._exhange_rate_repo.find_all()
+        exchange_rates = self._exсhange_rate_repo.find_all()
 
         currency_ids = set()
         for exchange_rate in exchange_rates:
