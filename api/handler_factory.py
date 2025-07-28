@@ -48,9 +48,9 @@ def create_handler(router: Router) -> type[BaseHTTPRequestHandler]:
             self.end_headers()
 
             data = (
-                [p.model_dump() for p in payload]
+                [p.model_dump(by_alias=True) for p in payload]
                 if isinstance(payload, list)
-                else payload.model_dump()
+                else payload.model_dump(by_alias=True)
             )
             payload_json = json.dumps(data, ensure_ascii=False)
             self.wfile.write((payload_json).encode('utf-8'))

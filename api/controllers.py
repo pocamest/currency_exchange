@@ -2,8 +2,8 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from api.dtos import CurrencyCreateDTO, CurrencyReadDTO, ErrorDTO
-from domain import CurrencyService, NotFoundError
+from api.dtos import CurrencyCreateDTO, CurrencyReadDTO, ErrorDTO, ExchangeRateReadDTO
+from domain import CurrencyService, NotFoundError, ExchangeRateService
 
 
 class CurrencyController:
@@ -41,3 +41,20 @@ class CurrencyController:
         )
         response_dto = CurrencyReadDTO.model_validate(created_currency)
         return 201, response_dto
+
+
+class ExchangeRateController:
+    def __init__(self, exchange_rate_controller: ExchangeRateService):
+        self._exchange_rate_service = exchange_rate_controller
+
+    def get_all_exchange_rates(self) -> tuple[int, list[ExchangeRateReadDTO]]:
+        exchange_rates = self._exchange_rate_service.get_all_full_exchange_rates()
+        response_dto = [
+            ExchangeRateReadDTO(
+                id=exchange_rate.id,
+                base_currency=CurrencyReadDTO.model_validate(base_currency),
+                target_currency=CurrencyReadDTO.model_validate(target_currency),
+                rate=exchange_rate.rate
+            ) for exchange_rate, base_currency, target_currency in exchange_rates
+        ]
+        return 200, response_dto

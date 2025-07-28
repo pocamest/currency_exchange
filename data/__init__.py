@@ -1,5 +1,5 @@
 from .connection import SQLiteConnectionFactory
-from .daos import SQLiteCurrencyDAO
+from .daos import SQLiteCurrencyDAO, SQLiteExchangeRatesDAO
 from .repositories import SQLiteCurrencyRepository, SQLiteExchangeRatesRepository
 
 __all__ = [
@@ -8,4 +8,5 @@ __all__ = [
     'AbstractConnectionFactory',
     'SQLiteCurrencyRepository',
     'SQLiteExchangeRatesRepository',
+    'SQLiteExchangeRatesDAO'
 ]

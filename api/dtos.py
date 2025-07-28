@@ -1,6 +1,12 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    FieldSerializationInfo,
+    field_serializer,
+)
 
 
 class BaseDTO(BaseModel):
@@ -24,9 +30,13 @@ class CurrencyCreateDTO(BaseDTO):
 
 class ExchangeRateReadDTO(BaseDTO):
     id: int
-    base_currency: CurrencyReadDTO = Field(alias='baseCurrency')
-    target_currency: CurrencyReadDTO = Field(alias='targetCurrency')
-    rate: Decimal = Field(alias='Rate')
+    base_currency: CurrencyReadDTO = Field(serialization_alias='baseCurrency')
+    target_currency: CurrencyReadDTO = Field(serialization_alias='targetCurrency')
+    rate: Decimal
+
+    @field_serializer('rate')
+    def serialize(self, rate: Decimal, _info: FieldSerializationInfo) -> str:
+        return str(rate)
 
 
 class ErrorDTO(BaseDTO):
