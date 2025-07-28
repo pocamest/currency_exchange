@@ -9,7 +9,7 @@ class Currency(BaseModel):
     code: str = Field(alias='Code')
     sign: str = Field(alias='Sign')
 
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ExchangeRate(BaseModel):
@@ -18,4 +18,4 @@ class ExchangeRate(BaseModel):
     target_currency_id: int = Field(alias='TargetCurrencyId')
     rate: Decimal = Field(alias='Rate')
 
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
