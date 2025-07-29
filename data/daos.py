@@ -40,14 +40,14 @@ class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
     def insert(
         self, cursor: sqlite3.Cursor, code: str, full_name: str, sign: str
     ) -> int:
-        query = f"""
-                INSERT INTO {self.Table.NAME} (
-                    {self.Table.CODE},
-                    {self.Table.FULL_NAME},
-                    {self.Table.SIGN}
-                )
-                VALUES (?, ?, ?)
-            """
+        query = f'''
+            INSERT INTO {self.Table.NAME} (
+                {self.Table.CODE},
+                {self.Table.FULL_NAME},
+                {self.Table.SIGN}
+            )
+            VALUES (?, ?, ?)
+        '''
         cursor.execute(query, (code, full_name, sign))
         id = cursor.lastrowid
         if not id:
