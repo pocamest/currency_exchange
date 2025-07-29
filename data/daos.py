@@ -63,10 +63,22 @@ class SQLiteExchangeRatesDAO(AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row
 
         ID = 'ID'
         BASE_CURRENCY_ID = 'BaseCurrencyId'
-        TARGET_CURRENCY_ID = 'Target_Currency_Id'
+        TARGET_CURRENCY_ID = 'TargetCurrencyId'
         RATE = 'Rate'
 
     def fetch_all(self, cursor: sqlite3.Cursor) -> list[sqlite3.Row]:
         query = f'SELECT * FROM {self.Table.NAME}'
         cursor.execute(query)
         return cursor.fetchall()
+
+    def fetch_by_currency_ids(
+        self, cursor: sqlite3.Cursor, base_id: int, target_id: int
+    ) -> sqlite3.Row | None:
+        query = f"""
+            SELECT * FROM {self.Table.NAME}
+            WHERE {self.Table.BASE_CURRENCY_ID} = ?
+            AND {self.Table.TARGET_CURRENCY_ID} = ?
+        """
+        cursor.execute(query, (base_id, target_id))
+        row = cursor.fetchone()
+        return row if row else None

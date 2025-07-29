@@ -68,3 +68,11 @@ class SQLiteExchangeRatesRepository(AbstractExcangeRateRepository):
             cursor = conn.cursor()
             rows = self._exchange_rate_dao.fetch_all(cursor)
             return [ExchangeRate.model_validate(dict(row)) for row in rows]
+
+    def find_by_currency_ids(self, base_id: int, target_id: int) -> ExchangeRate | None:
+        with self._factory.create_connection() as conn:
+            cursor = conn.cursor()
+            row = self._exchange_rate_dao.fetch_by_currency_ids(
+                cursor=cursor, base_id=base_id, target_id=target_id
+            )
+            return ExchangeRate.model_validate(dict(row)) if row else None

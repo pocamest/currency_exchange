@@ -56,3 +56,24 @@ class ExchangeRateController:
             for exchange_rate, base_currency, target_currency in exchange_rates
         ]
         return 200, response_dto
+
+    def get_exchange_rate_by_currency_codes(
+        self, currency_codes: str
+    ) -> tuple[int, ExchangeRateReadDTO | ErrorDTO]:
+        try:
+            base_code = currency_codes[:3]
+            target_code = currency_codes[3:]
+            exchange_rate, base_currency, target_currency = (
+                self._exchange_rate_service.get_full_exchange_rate_by_currency_codes(
+                    base_code=base_code, target_code=target_code
+                )
+            )
+            response_dto = ExchangeRateReadDTO(
+                id=exchange_rate.id,
+                base_currency=CurrencyReadDTO.model_validate(base_currency),
+                target_currency=CurrencyReadDTO.model_validate(target_currency),
+                rate=exchange_rate.rate
+            )
+            return 200, response_dto
+        except NotFoundError as e:
+            return 404, ErrorDTO(message=str(e))

@@ -63,8 +63,18 @@ class AbstractExchangeRateDAO[CursorType, RowType](ABC):
     def fetch_all(self, cursor: CursorType) -> list[RowType]:
         pass
 
+    @abstractmethod
+    def fetch_by_currency_ids(
+        self, cursor: CursorType, base_id: int, target_id: int
+    ) -> RowType | None:
+        pass
+
 
 class AbstractExcangeRateRepository(ABC):
     @abstractmethod
     def find_all(self) -> list[ExchangeRate]:
+        pass
+
+    @abstractmethod
+    def find_by_currency_ids(self, base_id: int, target_id: int) -> ExchangeRate | None:
         pass

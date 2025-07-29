@@ -50,3 +50,19 @@ class ExchangeRateService:
                 raise Exception('Не найдены валюты обменного курса')
             result.append((exchange_rate, base_currency, target_currency))
         return result
+
+    def get_full_exchange_rate_by_currency_codes(
+        self, base_code: str, target_code: str
+    ) -> tuple[ExchangeRate, Currency, Currency]:
+        base_currency = self._currency_repo.find_by_code(base_code)
+        target_currency = self._currency_repo.find_by_code(target_code)
+        if not base_currency or not target_currency:
+            raise Exception('Не найдены валюты обменного курса')
+        exchange_rate = self._exсhange_rate_repo.find_by_currency_ids(
+            base_id=base_currency.id, target_id=target_currency.id
+        )
+        if not exchange_rate:
+            raise NotFoundError(
+                f'Обменный курс с кодами валют {base_code} и {target_code} не найден'
+            )
+        return exchange_rate, base_currency, target_currency
