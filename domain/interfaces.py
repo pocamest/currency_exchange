@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from decimal import Decimal
 from typing import TypeVar
 
 from domain.models import Currency, ExchangeRate
@@ -70,7 +71,7 @@ class AbstractExchangeRateDAO[CursorType, RowType](ABC):
         pass
 
 
-class AbstractExcangeRateRepository(ABC):
+class AbstractExchangeRateRepository(ABC):
     @abstractmethod
     def find_all(self) -> list[ExchangeRate]:
         pass

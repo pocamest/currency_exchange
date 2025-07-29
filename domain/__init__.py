@@ -3,8 +3,8 @@ from .interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
-    AbstractExcangeRateRepository,
     AbstractExchangeRateDAO,
+    AbstractExchangeRateRepository,
 )
 from .models import Currency, ExchangeRate
 from .services import CurrencyService, ExchangeRateService
@@ -16,8 +16,8 @@ __all__ = [
     'AbstractCurrencyDAO',
     'AbstractCurrencyRepository',
     'AbstractExchangeRateDAO',
-    'AbstractExcangeRateRepository',
+    'AbstractExchangeRateRepository',
     'CurrencyService',
     'NotFoundError',
-    'ExchangeRateService'
+    'ExchangeRateService',
 ]

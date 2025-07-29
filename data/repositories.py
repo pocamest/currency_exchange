@@ -4,8 +4,8 @@ from domain import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
     AbstractCurrencyRepository,
-    AbstractExcangeRateRepository,
     AbstractExchangeRateDAO,
+    AbstractExchangeRateRepository,
     Currency,
     ExchangeRate,
 )
@@ -54,7 +54,7 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             return Currency.model_validate(dict(created_currency))
 
 
-class SQLiteExchangeRatesRepository(AbstractExcangeRateRepository):
+class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
     def __init__(
         self,
         exchange_rate_dao: AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row],

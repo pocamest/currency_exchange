@@ -1,5 +1,5 @@
 from domain.exceptions import NotFoundError
-from domain.interfaces import AbstractCurrencyRepository, AbstractExcangeRateRepository
+from domain.interfaces import AbstractCurrencyRepository, AbstractExchangeRateRepository
 from domain.models import Currency, ExchangeRate
 
 
@@ -23,16 +23,16 @@ class CurrencyService:
 class ExchangeRateService:
     def __init__(
         self,
-        exchange_rate_repo: AbstractExcangeRateRepository,
+        exchange_rate_repo: AbstractExchangeRateRepository,
         currency_repo: AbstractCurrencyRepository,
     ) -> None:
-        self._exсhange_rate_repo = exchange_rate_repo
+        self._exchange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
 
     def get_all_full_exchange_rates(
         self,
     ) -> list[tuple[ExchangeRate, Currency, Currency]]:
-        exchange_rates = self._exсhange_rate_repo.find_all()
+        exchange_rates = self._exchange_rate_repo.find_all()
 
         currency_ids = set()
         for exchange_rate in exchange_rates:
@@ -58,7 +58,7 @@ class ExchangeRateService:
         target_currency = self._currency_repo.find_by_code(target_code)
         if not base_currency or not target_currency:
             raise Exception('Не найдены валюты обменного курса')
-        exchange_rate = self._exсhange_rate_repo.find_by_currency_ids(
+        exchange_rate = self._exchange_rate_repo.find_by_currency_ids(
             base_id=base_currency.id, target_id=target_currency.id
         )
         if not exchange_rate:
