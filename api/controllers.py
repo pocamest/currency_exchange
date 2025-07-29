@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 from pydantic import ValidationError
@@ -61,8 +62,13 @@ class ExchangeRateController:
         self, currency_codes: str
     ) -> tuple[int, ExchangeRateReadDTO | ErrorDTO]:
         try:
-            base_code = currency_codes[:3]
-            target_code = currency_codes[3:]
+            currency_codes_match = re.fullmatch(r'([A-Z]{3})([A-Z]{3})', currency_codes)
+            if not currency_codes_match:
+                return 400, ErrorDTO(
+                    message='Коды некорректны или валют пары отсутствуют в адресе'
+                )
+            base_code = currency_codes_match.group(1)
+            target_code = currency_codes_match.group(2)
             exchange_rate, base_currency, target_currency = (
                 self._exchange_rate_service.get_full_exchange_rate_by_currency_codes(
                     base_code=base_code, target_code=target_code
@@ -72,7 +78,7 @@ class ExchangeRateController:
                 id=exchange_rate.id,
                 base_currency=CurrencyReadDTO.model_validate(base_currency),
                 target_currency=CurrencyReadDTO.model_validate(target_currency),
-                rate=exchange_rate.rate
+                rate=exchange_rate.rate,
             )
             return 200, response_dto
         except NotFoundError as e:
