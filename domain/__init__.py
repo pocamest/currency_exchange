@@ -7,7 +7,6 @@ from .interfaces import (
     AbstractExchangeRateRepository,
 )
 from .models import Currency, ExchangeRate
-from .services import CurrencyService, ExchangeRateService
 
 __all__ = [
     'Currency',
@@ -17,7 +16,5 @@ __all__ = [
     'AbstractCurrencyRepository',
     'AbstractExchangeRateDAO',
     'AbstractExchangeRateRepository',
-    'CurrencyService',
     'NotFoundError',
-    'ExchangeRateService',
 ]

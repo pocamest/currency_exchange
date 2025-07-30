@@ -7,6 +7,7 @@ from api import (
     create_handler,
     register_routes,
 )
+from application import CurrencyService, ExchangeRateService
 from config import DATABASE_PATH
 from data import (
     SQLiteConnectionFactory,
@@ -15,7 +16,6 @@ from data import (
     SQLiteExchangeRatesDAO,
     SQLiteExchangeRatesRepository,
 )
-from domain import CurrencyService, ExchangeRateService
 
 
 def run_server(port: int = 8000) -> None:

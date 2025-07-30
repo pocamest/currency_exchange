@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from decimal import Decimal
 from typing import TypeVar
 
 from domain.models import Currency, ExchangeRate
