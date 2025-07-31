@@ -39,5 +39,14 @@ class ExchangeRateReadDTO(BaseDTO):
         return str(rate)
 
 
+class ExchangeRateCreateDTO(BaseDTO):
+    base_currency_code: str = Field(validation_alias='baseCurrencyCode')
+    target_currency_code: str = Field(validation_alias='targetCurrencyCode')
+    rate: Decimal = Field(
+        max_digits=20,
+        decimal_places=6,
+        gt=0
+    )
+
 class ErrorDTO(BaseDTO):
     message: str

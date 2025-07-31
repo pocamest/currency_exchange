@@ -32,3 +32,8 @@ def register_routes(
         path='/exchangeRates/{currency_codes}',
         handler=exchange_rate_controller.get_exchange_rate_by_currency_codes,
     )
+    router.add_route(
+        method='POST',
+        path='/exchangeRates/',
+        handler=exchange_rate_controller.create_exchange_rate,
+    )

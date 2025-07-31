@@ -3,7 +3,13 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from api.dtos import CurrencyCreateDTO, CurrencyReadDTO, ErrorDTO, ExchangeRateReadDTO
+from api.dtos import (
+    CurrencyCreateDTO,
+    CurrencyReadDTO,
+    ErrorDTO,
+    ExchangeRateCreateDTO,
+    ExchangeRateReadDTO,
+)
 from application import CurrencyService, ExchangeRateService
 from domain import NotFoundError
 
@@ -73,3 +79,19 @@ class ExchangeRateController:
             return 200, exchange_rate_dto
         except NotFoundError as e:
             return 404, ErrorDTO(message=str(e))
+
+    def create_exchange_rate(
+        self, body: dict[str, Any]
+    ) -> tuple[int, ExchangeRateReadDTO | ErrorDTO]:
+        try:
+            request_dto = ExchangeRateCreateDTO(**body)
+        except ValidationError:
+            return 400, ErrorDTO(
+                message='Неверные или отсутствующие данные в теле запроса'
+            )
+        created_exchange_rate_dto = self._exchange_rate_service.create_exchange_rate(
+            base_currency_code=request_dto.base_currency_code,
+            target_currency_code=request_dto.target_currency_code,
+            rate=request_dto.rate,
+        )
+        return 201, created_exchange_rate_dto

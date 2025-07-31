@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from decimal import Decimal
 from typing import TypeVar
 
 from domain.models import Currency, ExchangeRate
@@ -64,9 +65,23 @@ class AbstractExchangeRateDAO[CursorType, RowType](ABC):
         pass
 
     @abstractmethod
+    def fetch_by_id(self, cursor: CursorType, id: int) -> RowType | None:
+        pass
+
+    @abstractmethod
     def fetch_by_currency_ids(
         self, cursor: CursorType, base_id: int, target_id: int
     ) -> RowType | None:
+        pass
+
+    @abstractmethod
+    def insert(
+        self,
+        cursor: CursorType,
+        base_currency_id: int,
+        target_currency_id: int,
+        rate: Decimal,
+    ) -> int:
         pass
 
 
@@ -77,4 +92,10 @@ class AbstractExchangeRateRepository(ABC):
 
     @abstractmethod
     def find_by_currency_ids(self, base_id: int, target_id: int) -> ExchangeRate | None:
+        pass
+
+    @abstractmethod
+    def create(
+        self, base_currency_id: int, target_currency_id: int, rate: Decimal
+    ) -> ExchangeRate:
         pass

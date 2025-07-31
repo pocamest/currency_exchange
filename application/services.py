@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from api.dtos import CurrencyReadDTO, ExchangeRateReadDTO
 from domain import (
     AbstractCurrencyRepository,
@@ -78,6 +80,25 @@ class ExchangeRateService:
             raise NotFoundError(
                 f'Обменный курс с кодами валют {base_code} и {target_code} не найден'
             )
+        return ExchangeRateReadDTO(
+            id=exchange_rate_model.id,
+            base_currency=CurrencyReadDTO.model_validate(base_currency_model),
+            target_currency=CurrencyReadDTO.model_validate(target_currency_model),
+            rate=exchange_rate_model.rate,
+        )
+
+    def create_exchange_rate(
+        self, base_currency_code: str, target_currency_code: str, rate: Decimal
+    ) -> ExchangeRateReadDTO:
+        base_currency_model = self._currency_repo.find_by_code(base_currency_code)
+        target_currency_model = self._currency_repo.find_by_code(target_currency_code)
+        if not base_currency_model or not target_currency_model:
+            raise NotFoundError('Не найдены валюты обменного курса')
+        exchange_rate_model = self._exchange_rate_repo.create(
+            base_currency_id=base_currency_model.id,
+            target_currency_id=target_currency_model.id,
+            rate=rate
+        )
         return ExchangeRateReadDTO(
             id=exchange_rate_model.id,
             base_currency=CurrencyReadDTO.model_validate(base_currency_model),

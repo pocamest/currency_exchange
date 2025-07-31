@@ -1,4 +1,5 @@
 import sqlite3
+from decimal import Decimal
 
 from domain import AbstractCurrencyDAO, AbstractExchangeRateDAO
 
@@ -40,14 +41,14 @@ class SQLiteCurrencyDAO(AbstractCurrencyDAO[sqlite3.Cursor, sqlite3.Row]):
     def insert(
         self, cursor: sqlite3.Cursor, code: str, full_name: str, sign: str
     ) -> int:
-        query = f'''
+        query = f"""
             INSERT INTO {self.Table.NAME} (
                 {self.Table.CODE},
                 {self.Table.FULL_NAME},
                 {self.Table.SIGN}
             )
             VALUES (?, ?, ?)
-        '''
+        """
         cursor.execute(query, (code, full_name, sign))
         id = cursor.lastrowid
         if not id:
@@ -71,6 +72,12 @@ class SQLiteExchangeRatesDAO(AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row
         cursor.execute(query)
         return cursor.fetchall()
 
+    def fetch_by_id(self, cursor: sqlite3.Cursor, id: int) -> sqlite3.Row | None:
+        query = f'SELECT * FROM {self.Table.NAME} WHERE {self.Table.ID} = ?'
+        cursor.execute(query, (id,))
+        row = cursor.fetchone()
+        return row if row else None
+
     def fetch_by_currency_ids(
         self, cursor: sqlite3.Cursor, base_id: int, target_id: int
     ) -> sqlite3.Row | None:
@@ -82,3 +89,26 @@ class SQLiteExchangeRatesDAO(AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row
         cursor.execute(query, (base_id, target_id))
         row = cursor.fetchone()
         return row if row else None
+
+    def insert(
+        self,
+        cursor: sqlite3.Cursor,
+        base_currency_id: int,
+        target_currency_id: int,
+        rate: Decimal,
+    ) -> int:
+        query = f"""
+            INSERT INTO {self.Table.NAME} (
+                {self.Table.BASE_CURRENCY_ID},
+                {self.Table.TARGET_CURRENCY_ID},
+                {self.Table.RATE}
+            )
+            VALUES(?, ?, ?)
+        """
+        cursor.execute(query, (base_currency_id, target_currency_id, rate))
+        id = cursor.lastrowid
+        if not id:
+            raise sqlite3.OperationalError(
+                'Не удалось получить ID после вставки записи.'
+            )
+        return id

@@ -1,4 +1,5 @@
 import sqlite3
+from decimal import Decimal
 
 from domain import (
     AbstractConnectionFactory,
@@ -76,3 +77,21 @@ class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
                 cursor=cursor, base_id=base_id, target_id=target_id
             )
             return ExchangeRate.model_validate(dict(row)) if row else None
+
+    def create(
+        self, base_currency_id: int, target_currency_id: int, rate: Decimal
+    ) -> ExchangeRate:
+        with self._factory.create_connection() as conn:
+            cursor = conn.cursor()
+            created_id = self._exchange_rate_dao.insert(
+                cursor=cursor,
+                base_currency_id=base_currency_id,
+                target_currency_id=target_currency_id,
+                rate=rate,
+            )
+            created_exchange_rate = self._exchange_rate_dao.fetch_by_id(
+                cursor=cursor, id=created_id
+            )
+            if not created_exchange_rate:
+                raise Exception('Не удалось найти только что созданную валюту')
+            return ExchangeRate.model_validate(dict(created_exchange_rate))
