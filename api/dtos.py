@@ -23,9 +23,9 @@ class CurrencyReadDTO(BaseDTO):
 
 
 class CurrencyCreateDTO(BaseDTO):
-    name: str
-    code: str
-    sign: str
+    name: str = Field(min_length=1)
+    code: str = Field(pattern=r'^[A-Z]{3}$')
+    sign: str = Field(min_length=1)
 
 
 class ExchangeRateReadDTO(BaseDTO):
@@ -40,13 +40,14 @@ class ExchangeRateReadDTO(BaseDTO):
 
 
 class ExchangeRateCreateDTO(BaseDTO):
-    base_currency_code: str = Field(validation_alias='baseCurrencyCode')
-    target_currency_code: str = Field(validation_alias='targetCurrencyCode')
-    rate: Decimal = Field(
-        max_digits=20,
-        decimal_places=6,
-        gt=0
+    base_currency_code: str = Field(
+        pattern=r'^[A-Z]{3}$', validation_alias='baseCurrencyCode'
     )
+    target_currency_code: str = Field(
+        pattern=r'^[A-Z]{3}$', validation_alias='targetCurrencyCode'
+    )
+    rate: Decimal = Field(max_digits=20, decimal_places=6, gt=0)
+
 
 class ErrorDTO(BaseDTO):
     message: str
