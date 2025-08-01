@@ -4,6 +4,8 @@ from api.dtos import CurrencyReadDTO, ExchangeRateReadDTO
 from domain import (
     AbstractCurrencyRepository,
     AbstractExchangeRateRepository,
+    Currency,
+    ExchangeRate,
     NotFoundError,
 )
 
@@ -38,6 +40,19 @@ class ExchangeRateService:
         self._exchange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
 
+    def _build_dto(
+        self,
+        exchange_rate_model: ExchangeRate,
+        base_currency_model: Currency,
+        target_currency_model: Currency,
+    ) -> ExchangeRateReadDTO:
+        return ExchangeRateReadDTO(
+            id=exchange_rate_model.id,
+            base_currency=CurrencyReadDTO.model_validate(base_currency_model),
+            target_currency=CurrencyReadDTO.model_validate(target_currency_model),
+            rate=exchange_rate_model.rate,
+        )
+
     def get_all_full_exchange_rates(
         self,
     ) -> list[ExchangeRateReadDTO]:
@@ -57,12 +72,7 @@ class ExchangeRateService:
             if not base_currency or not target_currency:
                 raise Exception('Не найдены валюты обменного курса')
             exchange_rate_dtos.append(
-                ExchangeRateReadDTO(
-                    id=exchange_rate.id,
-                    base_currency=CurrencyReadDTO.model_validate(base_currency),
-                    target_currency=CurrencyReadDTO.model_validate(target_currency),
-                    rate=exchange_rate.rate,
-                )
+                self._build_dto(exchange_rate, base_currency, target_currency)
             )
         return exchange_rate_dtos
 
@@ -80,11 +90,8 @@ class ExchangeRateService:
             raise NotFoundError(
                 f'Обменный курс с кодами валют {base_code} и {target_code} не найден'
             )
-        return ExchangeRateReadDTO(
-            id=exchange_rate_model.id,
-            base_currency=CurrencyReadDTO.model_validate(base_currency_model),
-            target_currency=CurrencyReadDTO.model_validate(target_currency_model),
-            rate=exchange_rate_model.rate,
+        return self._build_dto(
+            exchange_rate_model, base_currency_model, target_currency_model
         )
 
     def create_exchange_rate(
@@ -97,11 +104,8 @@ class ExchangeRateService:
         exchange_rate_model = self._exchange_rate_repo.create(
             base_currency_id=base_currency_model.id,
             target_currency_id=target_currency_model.id,
-            rate=rate
+            rate=rate,
         )
-        return ExchangeRateReadDTO(
-            id=exchange_rate_model.id,
-            base_currency=CurrencyReadDTO.model_validate(base_currency_model),
-            target_currency=CurrencyReadDTO.model_validate(target_currency_model),
-            rate=exchange_rate_model.rate,
+        return self._build_dto(
+            exchange_rate_model, base_currency_model, target_currency_model
         )
