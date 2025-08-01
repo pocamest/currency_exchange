@@ -53,6 +53,19 @@ class ExchangeRateService:
             rate=exchange_rate_model.rate,
         )
 
+    def _find_currencies_by_codes(
+        self, base_code: str, target_code: str
+    ) -> tuple[Currency, Currency]:
+        base_model = self._currency_repo.find_by_code(base_code)
+        if not base_model:
+            raise NotFoundError(f"Базовая валюта '{base_code}' не найдена")
+
+        target_model = self._currency_repo.find_by_code(target_code)
+        if not target_model:
+            raise NotFoundError(f"Целевая валюта '{target_code}' не найдена")
+
+        return base_model, target_model
+
     def get_all_full_exchange_rates(
         self,
     ) -> list[ExchangeRateReadDTO]:
@@ -79,10 +92,9 @@ class ExchangeRateService:
     def get_full_exchange_rate_by_currency_codes(
         self, base_code: str, target_code: str
     ) -> ExchangeRateReadDTO:
-        base_currency_model = self._currency_repo.find_by_code(base_code)
-        target_currency_model = self._currency_repo.find_by_code(target_code)
-        if not base_currency_model or not target_currency_model:
-            raise Exception('Не найдены валюты обменного курса')
+        base_currency_model, target_currency_model = self._find_currencies_by_codes(
+            base_code=base_code, target_code=target_code
+        )
         exchange_rate_model = self._exchange_rate_repo.find_by_currency_ids(
             base_id=base_currency_model.id, target_id=target_currency_model.id
         )
@@ -97,10 +109,9 @@ class ExchangeRateService:
     def create_exchange_rate(
         self, base_currency_code: str, target_currency_code: str, rate: Decimal
     ) -> ExchangeRateReadDTO:
-        base_currency_model = self._currency_repo.find_by_code(base_currency_code)
-        target_currency_model = self._currency_repo.find_by_code(target_currency_code)
-        if not base_currency_model or not target_currency_model:
-            raise NotFoundError('Не найдены валюты обменного курса')
+        base_currency_model, target_currency_model = self._find_currencies_by_codes(
+            base_code=base_currency_code, target_code=target_currency_code
+        )
         exchange_rate_model = self._exchange_rate_repo.create(
             base_currency_id=base_currency_model.id,
             target_currency_id=target_currency_model.id,
