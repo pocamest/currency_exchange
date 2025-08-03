@@ -9,6 +9,7 @@ from api.dtos import (
     ErrorDTO,
     ExchangeRateCreateDTO,
     ExchangeRateReadDTO,
+    ExchangeRateUpdateDTO,
 )
 from application import CurrencyService, ExchangeRateService
 from domain import NotFoundError
@@ -95,3 +96,31 @@ class ExchangeRateController:
             rate=request_dto.rate,
         )
         return 201, created_exchange_rate_dto
+
+    def update_exchange_rate(
+        self, currency_codes: str, body: dict[str, Any]
+    ) -> tuple[int, ExchangeRateReadDTO | ErrorDTO]:
+        currency_codes_match = re.fullmatch(r'([A-Z]{3})([A-Z]{3})', currency_codes)
+        if not currency_codes_match:
+            return 400, ErrorDTO(
+                message='Коды некорректны или валют пары отсутствуют в адресе'
+            )
+        base_code = currency_codes_match.group(1)
+        target_code = currency_codes_match.group(2)
+        try:
+            request_dto = ExchangeRateUpdateDTO(**body)
+        except ValidationError:
+            return 400, ErrorDTO(
+                message='Неверные или отсутствующие данные в теле запроса'
+            )
+        try:
+            updated_exchange_rate_dto = (
+                self._exchange_rate_service.update_exchange_rate(
+                    base_currency_code=base_code,
+                    target_currency_code=target_code,
+                    rate=request_dto.rate,
+                )
+            )
+            return 200, updated_exchange_rate_dto
+        except NotFoundError as e:
+            return 404, ErrorDTO(message=str(e))

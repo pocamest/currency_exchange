@@ -84,6 +84,16 @@ class AbstractExchangeRateDAO[CursorType, RowType](ABC):
     ) -> int:
         pass
 
+    @abstractmethod
+    def update(
+        self,
+        cursor: CursorType,
+        base_currency_id: int,
+        target_currency_id: int,
+        rate: Decimal,
+    ) -> int:
+        pass
+
 
 class AbstractExchangeRateRepository(ABC):
     @abstractmethod
@@ -98,4 +108,10 @@ class AbstractExchangeRateRepository(ABC):
     def create(
         self, base_currency_id: int, target_currency_id: int, rate: Decimal
     ) -> ExchangeRate:
+        pass
+
+    @abstractmethod
+    def update(
+        self, base_currency_id: int, target_currency_id: int, rate: Decimal
+    ) -> bool:
         pass

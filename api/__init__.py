@@ -1,5 +1,9 @@
 from .controllers import CurrencyController, ExchangeRateController
-from .dtos import CurrencyCreateDTO, CurrencyReadDTO, ExchangeRateReadDTO
+from .dtos import (
+    CurrencyCreateDTO,
+    CurrencyReadDTO,
+    ExchangeRateReadDTO,
+)
 from .handler_factory import create_handler
 from .router import Router
 from .routes import register_routes

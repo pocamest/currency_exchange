@@ -49,5 +49,8 @@ class ExchangeRateCreateDTO(BaseDTO):
     rate: Decimal = Field(max_digits=20, decimal_places=6, gt=0)
 
 
+class ExchangeRateUpdateDTO(BaseDTO):
+    rate: Decimal = Field(max_digits=20, decimal_places=6, gt=0)
+
 class ErrorDTO(BaseDTO):
     message: str

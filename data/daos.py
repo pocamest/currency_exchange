@@ -112,3 +112,19 @@ class SQLiteExchangeRatesDAO(AbstractExchangeRateDAO[sqlite3.Cursor, sqlite3.Row
                 'Не удалось получить ID после вставки записи.'
             )
         return id
+
+    def update(
+        self,
+        cursor: sqlite3.Cursor,
+        base_currency_id: int,
+        target_currency_id: int,
+        rate: Decimal,
+    ) -> int:
+        query = f"""
+            UPDATE {self.Table.NAME}
+            SET {self.Table.RATE} = ?
+            WHERE {self.Table.BASE_CURRENCY_ID} = ?
+            AND {self.Table.TARGET_CURRENCY_ID} = ?
+        """
+        cursor.execute(query, (rate, base_currency_id, target_currency_id))
+        return cursor.rowcount

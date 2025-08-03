@@ -120,3 +120,34 @@ class ExchangeRateService:
         return self._build_dto(
             exchange_rate_model, base_currency_model, target_currency_model
         )
+
+    def update_exchange_rate(
+        self, base_currency_code: str, target_currency_code: str, rate: Decimal
+    ) -> ExchangeRateReadDTO:
+        base_currency_model, target_currency_model = self._find_currencies_by_codes(
+            base_code=base_currency_code, target_code=target_currency_code
+        )
+
+        base_currency_id = base_currency_model.id
+        target_currency_id = target_currency_model.id
+
+        was_updated = self._exchange_rate_repo.update(
+            base_currency_id=base_currency_id,
+            target_currency_id=target_currency_id,
+            rate=rate,
+        )
+        if not was_updated:
+            raise NotFoundError(
+                f'Обменный курс для пары '
+                f'{base_currency_code}/{target_currency_code} не найден'
+            )
+
+        updated_exchange_rate_model = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=base_currency_id,
+            target_id=target_currency_id,
+        )
+        if not updated_exchange_rate_model:
+            raise Exception('Не на удалось найти измененный обменный курс')
+        return self._build_dto(
+            updated_exchange_rate_model, base_currency_model, target_currency_model
+        )

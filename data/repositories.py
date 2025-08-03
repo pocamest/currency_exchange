@@ -93,5 +93,18 @@ class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
                 cursor=cursor, id=created_id
             )
             if not created_exchange_rate:
-                raise Exception('Не удалось найти только что созданную валюту')
+                raise Exception('Не удалось найти только что созданный обменный курс')
             return ExchangeRate.model_validate(dict(created_exchange_rate))
+
+    def update(
+        self, base_currency_id: int, target_currency_id: int, rate: Decimal
+    ) -> bool:
+        with self._factory.create_connection() as conn:
+            cursor = conn.cursor()
+            updated_rows_count = self._exchange_rate_dao.update(
+                cursor=cursor,
+                base_currency_id=base_currency_id,
+                target_currency_id=target_currency_id,
+                rate=rate
+            )
+            return updated_rows_count > 0
