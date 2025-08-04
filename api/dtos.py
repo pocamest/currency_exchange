@@ -52,5 +52,16 @@ class ExchangeRateCreateDTO(BaseDTO):
 class ExchangeRateUpdateDTO(BaseDTO):
     rate: Decimal = Field(max_digits=20, decimal_places=6, gt=0)
 
+class ExchangeCalculationDTO(BaseDTO):
+    base_currency: CurrencyReadDTO = Field(serialization_alias='baseCurrency')
+    target_currency: CurrencyReadDTO = Field(serialization_alias='targetCurrency')
+    rate: Decimal
+    amount: Decimal
+    converted_amount: Decimal = Field(serialization_alias='convertedAmount')
+
+    @field_serializer('rate', 'amount', 'converted_amount')
+    def serialize_decimal(self, value: Decimal, _info: FieldSerializationInfo) -> str:
+        return str(value)
+
 class ErrorDTO(BaseDTO):
     message: str
