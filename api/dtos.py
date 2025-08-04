@@ -35,7 +35,7 @@ class ExchangeRateReadDTO(BaseDTO):
     rate: Decimal
 
     @field_serializer('rate')
-    def serialize(self, rate: Decimal, _info: FieldSerializationInfo) -> str:
+    def serialize_rate(self, rate: Decimal, _info: FieldSerializationInfo) -> str:
         return str(rate)
 
 
