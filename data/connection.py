@@ -5,7 +5,7 @@ from domain import AbstractConnectionFactory
 
 
 def adapt_decimal(d: Decimal) -> str:
-    return str(d)
+    return d.to_eng_string()
 
 
 def convert_decimal(b: bytes) -> Decimal:

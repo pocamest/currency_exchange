@@ -36,7 +36,7 @@ class ExchangeRateReadDTO(BaseDTO):
 
     @field_serializer('rate')
     def serialize_rate(self, rate: Decimal, _info: FieldSerializationInfo) -> str:
-        return str(rate)
+        return rate.to_eng_string()
 
 
 class ExchangeRateCreateDTO(BaseDTO):
@@ -61,7 +61,7 @@ class ExchangeCalculationDTO(BaseDTO):
 
     @field_serializer('rate', 'amount', 'converted_amount')
     def serialize_decimal(self, value: Decimal, _info: FieldSerializationInfo) -> str:
-        return str(value)
+        return value.to_eng_string()
 
 class ErrorDTO(BaseDTO):
     message: str
