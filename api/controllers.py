@@ -7,6 +7,8 @@ from api.dtos import (
     CurrencyCreateDTO,
     CurrencyReadDTO,
     ErrorDTO,
+    ExchangeCalculationDTO,
+    ExchangeCalculationRequestDTO,
     ExchangeRateCreateDTO,
     ExchangeRateReadDTO,
     ExchangeRateUpdateDTO,
@@ -122,5 +124,24 @@ class ExchangeRateController:
                 )
             )
             return 200, updated_exchange_rate_dto
+        except NotFoundError as e:
+            return 404, ErrorDTO(message=str(e))
+
+    def get_exchange_calculation(
+        self, **query: Any
+    ) -> tuple[int, ExchangeCalculationDTO | ErrorDTO]:
+        try:
+            query_dto = ExchangeCalculationRequestDTO.model_validate(query)
+        except ValidationError:
+            return 400, ErrorDTO(
+                message='Неверные или отсутствующие данные в параметрах запроса'
+            )
+        try:
+            exchange_calculation_dto = self._exchange_rate_service.calculate_exchange(
+                base_currency_code=query_dto.base_currency_code,
+                target_currency_code=query_dto.target_currency_code,
+                amount=query_dto.amount,
+            )
+            return 200, exchange_calculation_dto
         except NotFoundError as e:
             return 404, ErrorDTO(message=str(e))

@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from api.dtos import CurrencyReadDTO, ExchangeRateReadDTO
+from api.dtos import CurrencyReadDTO, ExchangeCalculationDTO, ExchangeRateReadDTO
 from domain import (
     AbstractCurrencyRepository,
     AbstractExchangeRateRepository,
@@ -150,4 +150,28 @@ class ExchangeRateService:
             raise Exception('Не на удалось найти измененный обменный курс')
         return self._build_dto(
             updated_exchange_rate_model, base_currency_model, target_currency_model
+        )
+
+    def calculate_exchange(
+        self, base_currency_code: str, target_currency_code: str, amount: Decimal
+    ) -> ExchangeCalculationDTO:
+        base_currency_model, target_currency_model = self._find_currencies_by_codes(
+            base_code=base_currency_code, target_code=target_currency_code
+        )
+        direct_rate = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=base_currency_model.id, target_id=target_currency_model.id
+        )
+        if direct_rate:
+            rate = direct_rate.rate
+            converted_amount = amount * rate
+            return ExchangeCalculationDTO(
+                base_currency=CurrencyReadDTO.model_validate(base_currency_model),
+                target_currency=CurrencyReadDTO.model_validate(target_currency_model),
+                rate=rate,
+                amount=amount,
+                converted_amount=converted_amount,
+            )
+        raise NotFoundError(
+            f'Обменный курс для валют '
+            f'{base_currency_code}/{target_currency_code} не найден'
         )

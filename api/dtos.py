@@ -63,5 +63,11 @@ class ExchangeCalculationDTO(BaseDTO):
     def serialize_decimal(self, value: Decimal, _info: FieldSerializationInfo) -> str:
         return value.to_eng_string()
 
+
+class ExchangeCalculationRequestDTO(BaseDTO):
+    base_currency_code: str = Field(pattern=r'^[A-Z]{3}$', validation_alias='from')
+    target_currency_code: str = Field(pattern=r'^[A-Z]{3}$', validation_alias='to')
+    amount: Decimal =Field(max_digits=20, decimal_places=6, gt=0)
+
 class ErrorDTO(BaseDTO):
     message: str
