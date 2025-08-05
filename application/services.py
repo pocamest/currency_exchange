@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from api.dtos import CurrencyReadDTO, ExchangeCalculationDTO, ExchangeRateReadDTO
 from domain import (
@@ -53,6 +53,26 @@ class ExchangeRateService:
             rate=exchange_rate_model.rate,
         )
 
+    def _build_exchange_calculation_dto(
+        self,
+        base_currency_model: Currency,
+        target_currency_model: Currency,
+        rate: Decimal,
+        amount: Decimal,
+    ) -> ExchangeCalculationDTO:
+        unrounded_amount = amount * rate
+        converted_amount = unrounded_amount.quantize(
+            Decimal('0.01'), rounding=ROUND_HALF_UP
+        )
+
+        return ExchangeCalculationDTO(
+            base_currency=CurrencyReadDTO.model_validate(base_currency_model),
+            target_currency=CurrencyReadDTO.model_validate(target_currency_model),
+            rate=rate,
+            amount=amount,
+            converted_amount=converted_amount,
+        )
+
     def _find_currencies_by_codes(
         self, base_code: str, target_code: str
     ) -> tuple[Currency, Currency]:
@@ -85,7 +105,9 @@ class ExchangeRateService:
             if not base_currency or not target_currency:
                 raise Exception('Не найдены валюты обменного курса')
             exchange_rate_dtos.append(
-                self._build_exchange_rate_dto(exchange_rate, base_currency, target_currency)
+                self._build_exchange_rate_dto(
+                    exchange_rate, base_currency, target_currency
+                )
             )
         return exchange_rate_dtos
 
@@ -163,13 +185,11 @@ class ExchangeRateService:
         )
         if direct_rate:
             rate = direct_rate.rate
-            converted_amount = amount * rate
-            return ExchangeCalculationDTO(
-                base_currency=CurrencyReadDTO.model_validate(base_currency_model),
-                target_currency=CurrencyReadDTO.model_validate(target_currency_model),
+            return self._build_exchange_calculation_dto(
+                base_currency_model=base_currency_model,
+                target_currency_model=target_currency_model,
                 rate=rate,
-                amount=amount,
-                converted_amount=converted_amount,
+                amount=amount
             )
         raise NotFoundError(
             f'Обменный курс для валют '
