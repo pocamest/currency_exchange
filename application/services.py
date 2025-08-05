@@ -40,7 +40,7 @@ class ExchangeRateService:
         self._exchange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
 
-    def _build_dto(
+    def _build_exchange_rate_dto(
         self,
         exchange_rate_model: ExchangeRate,
         base_currency_model: Currency,
@@ -85,7 +85,7 @@ class ExchangeRateService:
             if not base_currency or not target_currency:
                 raise Exception('Не найдены валюты обменного курса')
             exchange_rate_dtos.append(
-                self._build_dto(exchange_rate, base_currency, target_currency)
+                self._build_exchange_rate_dto(exchange_rate, base_currency, target_currency)
             )
         return exchange_rate_dtos
 
@@ -102,7 +102,7 @@ class ExchangeRateService:
             raise NotFoundError(
                 f'Обменный курс с кодами валют {base_code} и {target_code} не найден'
             )
-        return self._build_dto(
+        return self._build_exchange_rate_dto(
             exchange_rate_model, base_currency_model, target_currency_model
         )
 
@@ -117,7 +117,7 @@ class ExchangeRateService:
             target_currency_id=target_currency_model.id,
             rate=rate,
         )
-        return self._build_dto(
+        return self._build_exchange_rate_dto(
             exchange_rate_model, base_currency_model, target_currency_model
         )
 
@@ -148,7 +148,7 @@ class ExchangeRateService:
         )
         if not updated_exchange_rate_model:
             raise Exception('Не на удалось найти измененный обменный курс')
-        return self._build_dto(
+        return self._build_exchange_rate_dto(
             updated_exchange_rate_model, base_currency_model, target_currency_model
         )
 
