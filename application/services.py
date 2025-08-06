@@ -213,6 +213,28 @@ class ExchangeRateService:
                 amount=amount
             )
 
+        usd_currency = self._currency_repo.find_by_code(code='USD')
+        if not usd_currency:
+            raise NotFoundError('Валюта USD не найдена')
+
+        usd_base_exchange_rate = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=usd_currency.id,
+            target_id=base_currency_model.id,
+        )
+        if usd_base_exchange_rate:
+            usd_target_exchange_rate = self._exchange_rate_repo.find_by_currency_ids(
+                base_id=usd_currency.id,
+                target_id=target_currency_model.id,
+            )
+            if usd_target_exchange_rate:
+                final_rate = 1 / usd_base_exchange_rate.rate * usd_target_exchange_rate.rate
+                return self._build_exchange_calculation_dto(
+                    base_currency_model=base_currency_model,
+                    target_currency_model=target_currency_model,
+                    rate=final_rate,
+                    amount=amount
+                )
+
         raise NotFoundError(
             f'Обменный курс для валют '
             f'{base_currency_code}/{target_currency_code} не найден'
