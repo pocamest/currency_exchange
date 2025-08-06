@@ -46,11 +46,14 @@ class ExchangeRateService:
         base_currency_model: Currency,
         target_currency_model: Currency,
     ) -> ExchangeRateReadDTO:
+        normalize_rate = exchange_rate_model.rate.quantize(
+            Decimal('0.000001'), rounding=ROUND_HALF_UP
+        )
         return ExchangeRateReadDTO(
             id=exchange_rate_model.id,
             base_currency=CurrencyReadDTO.model_validate(base_currency_model),
             target_currency=CurrencyReadDTO.model_validate(target_currency_model),
-            rate=exchange_rate_model.rate,
+            rate=normalize_rate,
         )
 
     def _build_exchange_calculation_dto(
@@ -64,12 +67,18 @@ class ExchangeRateService:
         converted_amount = unrounded_amount.quantize(
             Decimal('0.01'), rounding=ROUND_HALF_UP
         )
+        normalized_rate = rate.quantize(
+            Decimal('0.000001'), rounding=ROUND_HALF_UP
+        )
+        normalized_amount = amount.quantize(
+            Decimal('0.01'), rounding=ROUND_HALF_UP
+        )
 
         return ExchangeCalculationDTO(
             base_currency=CurrencyReadDTO.model_validate(base_currency_model),
             target_currency=CurrencyReadDTO.model_validate(target_currency_model),
-            rate=rate,
-            amount=amount,
+            rate=normalized_rate,
+            amount=normalized_amount,
             converted_amount=converted_amount,
         )
 
@@ -191,6 +200,19 @@ class ExchangeRateService:
                 rate=rate,
                 amount=amount
             )
+
+        reverse_rate = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=target_currency_model.id, target_id=base_currency_model.id
+        )
+        if reverse_rate:
+            rate = 1 / reverse_rate.rate
+            return self._build_exchange_calculation_dto(
+                base_currency_model=base_currency_model,
+                target_currency_model=target_currency_model,
+                rate=rate,
+                amount=amount
+            )
+
         raise NotFoundError(
             f'Обменный курс для валют '
             f'{base_currency_code}/{target_currency_code} не найден'
