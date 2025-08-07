@@ -8,7 +8,7 @@ from api import (
     register_routes,
 )
 from application import CurrencyService, ExchangeRateService
-from config import DATABASE_PATH
+from config import CROSS_RATE_BASE_CURRENCY, DATABASE_PATH
 from data import (
     SQLiteConnectionFactory,
     SQLiteCurrencyDAO,
@@ -32,7 +32,9 @@ def run_server(port: int = 8000) -> None:
         exchange_rate_dao=exchange_rate_dao, connection_factory=connection_factory
     )
     exchange_rate_service = ExchangeRateService(
-        exchange_rate_repo=exchange_rate_repo, currency_repo=currency_repo
+        exchange_rate_repo=exchange_rate_repo,
+        currency_repo=currency_repo,
+        cross_rate_base_code=CROSS_RATE_BASE_CURRENCY,
     )
     exchange_rate_controller = ExchangeRateController(exchange_rate_service)
     router = Router()

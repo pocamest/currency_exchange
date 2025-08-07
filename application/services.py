@@ -36,9 +36,11 @@ class ExchangeRateService:
         self,
         exchange_rate_repo: AbstractExchangeRateRepository,
         currency_repo: AbstractCurrencyRepository,
+        cross_rate_base_code: str
     ) -> None:
         self._exchange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
+        self._cross_rate_base = cross_rate_base_code
 
     def _build_exchange_rate_dto(
         self,
@@ -94,6 +96,30 @@ class ExchangeRateService:
             raise NotFoundError(f"Целевая валюта '{target_code}' не найдена")
 
         return base_model, target_model
+
+    def _calculate_cross_rate(
+        self,
+        base_currency_id: int,
+        target_currency_id: int
+    ) -> Decimal | None:
+
+        usd_currency = self._currency_repo.find_by_code(code=self._cross_rate_base)
+        if not usd_currency:
+            raise Exception('Ошибка конфигурации, валюта USD не найдена')
+
+        exchange_rate_cross_to_base = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=usd_currency.id,
+            target_id=base_currency_id,
+        )
+        exchange_rate_cross_to_target = self._exchange_rate_repo.find_by_currency_ids(
+            base_id=usd_currency.id,
+            target_id=target_currency_id,
+        )
+
+        if not exchange_rate_cross_to_base or not exchange_rate_cross_to_target:
+            return None
+
+        return 1 / exchange_rate_cross_to_base.rate * exchange_rate_cross_to_target.rate
 
     def get_all_full_exchange_rates(
         self,
@@ -213,27 +239,17 @@ class ExchangeRateService:
                 amount=amount
             )
 
-        usd_currency = self._currency_repo.find_by_code(code='USD')
-        if not usd_currency:
-            raise NotFoundError('Валюта USD не найдена')
-
-        usd_base_exchange_rate = self._exchange_rate_repo.find_by_currency_ids(
-            base_id=usd_currency.id,
-            target_id=base_currency_model.id,
+        cross_rate = self._calculate_cross_rate(
+            base_currency_id=base_currency_model.id,
+            target_currency_id=target_currency_model.id
         )
-        if usd_base_exchange_rate:
-            usd_target_exchange_rate = self._exchange_rate_repo.find_by_currency_ids(
-                base_id=usd_currency.id,
-                target_id=target_currency_model.id,
+        if cross_rate:
+            return self._build_exchange_calculation_dto(
+                base_currency_model=base_currency_model,
+                target_currency_model=target_currency_model,
+                rate=cross_rate,
+                amount=amount,
             )
-            if usd_target_exchange_rate:
-                final_rate = 1 / usd_base_exchange_rate.rate * usd_target_exchange_rate.rate
-                return self._build_exchange_calculation_dto(
-                    base_currency_model=base_currency_model,
-                    target_currency_model=target_currency_model,
-                    rate=final_rate,
-                    amount=amount
-                )
 
         raise NotFoundError(
             f'Обменный курс для валют '
