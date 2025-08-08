@@ -1,4 +1,4 @@
-from .exceptions import ConflictError, NotFoundError, SystemError
+from .exceptions import ConfigurationError, ConflictError, NotFoundError, SystemError
 from .interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
@@ -18,5 +18,6 @@ __all__ = [
     'AbstractExchangeRateRepository',
     'NotFoundError',
     'ConflictError',
-    'SystemError'
+    'SystemError',
+    'ConfigurationError',
 ]

@@ -4,6 +4,7 @@ from api.dtos import CurrencyReadDTO, ExchangeCalculationDTO, ExchangeRateReadDT
 from domain import (
     AbstractCurrencyRepository,
     AbstractExchangeRateRepository,
+    ConfigurationError,
     Currency,
     ExchangeRate,
     NotFoundError,
@@ -99,7 +100,7 @@ class ExchangeRateService:
     ) -> Decimal | None:
         usd_currency = self._currency_repo.find_by_code(code=self._cross_rate_base)
         if not usd_currency:
-            raise Exception('Ошибка конфигурации, валюта USD не найдена')
+            raise ConfigurationError('Ошибка конфигурации, валюта USD не найдена')
 
         exchange_rate_cross_to_base = self._exchange_rate_repo.find_by_currency_ids(
             base_id=usd_currency.id,
