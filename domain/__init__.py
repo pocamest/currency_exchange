@@ -1,4 +1,4 @@
-from .exceptions import NotFoundError
+from .exceptions import ConflictError, NotFoundError
 from .interfaces import (
     AbstractConnectionFactory,
     AbstractCurrencyDAO,
@@ -17,4 +17,5 @@ __all__ = [
     'AbstractExchangeRateDAO',
     'AbstractExchangeRateRepository',
     'NotFoundError',
+    'ConflictError'
 ]

@@ -9,6 +9,7 @@ from domain import (
     AbstractExchangeRateRepository,
     Currency,
     ExchangeRate,
+    ConflictError
 )
 
 
@@ -46,13 +47,19 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
             return [Currency.model_validate(dict(row)) for row in rows]
 
     def create(self, code: str, full_name: str, sign: str) -> Currency:
-        with self._factory.create_connection() as conn:
-            cursor = conn.cursor()
-            created_id = self._currency_dao.insert(cursor, code, full_name, sign)
-            created_currency = self._currency_dao.fetch_by_id(cursor, created_id)
-            if created_currency is None:
-                raise Exception('Не удалось найти только что созданную валюту')
-            return Currency.model_validate(dict(created_currency))
+        try:
+            with self._factory.create_connection() as conn:
+                cursor = conn.cursor()
+                created_id = self._currency_dao.insert(cursor, code, full_name, sign)
+                created_currency = self._currency_dao.fetch_by_id(cursor, created_id)
+                if created_currency is None:
+                    raise Exception('Не удалось найти только что созданную валюту')
+                return Currency.model_validate(dict(created_currency))
+        except sqlite3.IntegrityError as e:
+            raise ConflictError(
+                f'Не удалось создать валюту с кодом {code}: '
+                f'данные конфликтуют с уже существующими.'
+            ) from e
 
 
 class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
