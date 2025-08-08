@@ -26,6 +26,11 @@ class CurrencyController:
         return 200, currencies_dto
 
     def get_currency_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
+        code_match = re.fullmatch(r'[A-Z]{3}', code)
+        if not code_match:
+            return 400, ErrorDTO(
+                    message=f'Код {code} некорректен'
+                )
         try:
             currency_dto = self._currency_service.get_currency_by_code(code=code)
             return 200, currency_dto
