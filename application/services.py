@@ -7,6 +7,7 @@ from domain import (
     Currency,
     ExchangeRate,
     NotFoundError,
+    SystemError,
 )
 
 
@@ -36,7 +37,7 @@ class ExchangeRateService:
         self,
         exchange_rate_repo: AbstractExchangeRateRepository,
         currency_repo: AbstractCurrencyRepository,
-        cross_rate_base_code: str
+        cross_rate_base_code: str,
     ) -> None:
         self._exchange_rate_repo = exchange_rate_repo
         self._currency_repo = currency_repo
@@ -69,12 +70,8 @@ class ExchangeRateService:
         converted_amount = unrounded_amount.quantize(
             Decimal('0.01'), rounding=ROUND_HALF_UP
         )
-        normalized_rate = rate.quantize(
-            Decimal('0.000001'), rounding=ROUND_HALF_UP
-        )
-        normalized_amount = amount.quantize(
-            Decimal('0.01'), rounding=ROUND_HALF_UP
-        )
+        normalized_rate = rate.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+        normalized_amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
         return ExchangeCalculationDTO(
             base_currency=CurrencyReadDTO.model_validate(base_currency_model),
@@ -98,11 +95,8 @@ class ExchangeRateService:
         return base_model, target_model
 
     def _calculate_cross_rate(
-        self,
-        base_currency_id: int,
-        target_currency_id: int
+        self, base_currency_id: int, target_currency_id: int
     ) -> Decimal | None:
-
         usd_currency = self._currency_repo.find_by_code(code=self._cross_rate_base)
         if not usd_currency:
             raise Exception('Ошибка конфигурации, валюта USD не найдена')
@@ -138,7 +132,7 @@ class ExchangeRateService:
             base_currency = currencies_map.get(exchange_rate.base_currency_id)
             target_currency = currencies_map.get(exchange_rate.target_currency_id)
             if not base_currency or not target_currency:
-                raise Exception('Не найдены валюты обменного курса')
+                raise SystemError('Не найдены валюты обменного курса')
             exchange_rate_dtos.append(
                 self._build_exchange_rate_dto(
                     exchange_rate, base_currency, target_currency
@@ -204,7 +198,7 @@ class ExchangeRateService:
             target_id=target_currency_id,
         )
         if not updated_exchange_rate_model:
-            raise Exception('Не на удалось найти измененный обменный курс')
+            raise SystemError('Не на удалось найти измененный обменный курс')
         return self._build_exchange_rate_dto(
             updated_exchange_rate_model, base_currency_model, target_currency_model
         )
@@ -224,7 +218,7 @@ class ExchangeRateService:
                 base_currency_model=base_currency_model,
                 target_currency_model=target_currency_model,
                 rate=rate,
-                amount=amount
+                amount=amount,
             )
 
         reverse_rate = self._exchange_rate_repo.find_by_currency_ids(
@@ -236,12 +230,12 @@ class ExchangeRateService:
                 base_currency_model=base_currency_model,
                 target_currency_model=target_currency_model,
                 rate=rate,
-                amount=amount
+                amount=amount,
             )
 
         cross_rate = self._calculate_cross_rate(
             base_currency_id=base_currency_model.id,
-            target_currency_id=target_currency_model.id
+            target_currency_id=target_currency_model.id,
         )
         if cross_rate:
             return self._build_exchange_calculation_dto(

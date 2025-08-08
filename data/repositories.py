@@ -7,9 +7,10 @@ from domain import (
     AbstractCurrencyRepository,
     AbstractExchangeRateDAO,
     AbstractExchangeRateRepository,
+    ConflictError,
     Currency,
     ExchangeRate,
-    ConflictError
+    SystemError,
 )
 
 
@@ -53,7 +54,7 @@ class SQLiteCurrencyRepository(AbstractCurrencyRepository):
                 created_id = self._currency_dao.insert(cursor, code, full_name, sign)
                 created_currency = self._currency_dao.fetch_by_id(cursor, created_id)
                 if created_currency is None:
-                    raise Exception('Не удалось найти только что созданную валюту')
+                    raise SystemError('Не удалось найти только что созданную валюту')
                 return Currency.model_validate(dict(created_currency))
         except sqlite3.IntegrityError as e:
             raise ConflictError(
@@ -100,7 +101,7 @@ class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
                 cursor=cursor, id=created_id
             )
             if not created_exchange_rate:
-                raise Exception('Не удалось найти только что созданный обменный курс')
+                raise SystemError('Не удалось найти только что созданный обменный курс')
             return ExchangeRate.model_validate(dict(created_exchange_rate))
 
     def update(
@@ -112,6 +113,6 @@ class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
                 cursor=cursor,
                 base_currency_id=base_currency_id,
                 target_currency_id=target_currency_id,
-                rate=rate
+                rate=rate,
             )
             return updated_rows_count > 0

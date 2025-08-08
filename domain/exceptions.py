@@ -8,3 +8,6 @@ class NotFoundError(AppError):
 
 class ConflictError(AppError):
     pass
+
+class SystemError(AppError):
+    pass
