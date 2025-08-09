@@ -89,20 +89,29 @@ class SQLiteExchangeRatesRepository(AbstractExchangeRateRepository):
     def create(
         self, base_currency_id: int, target_currency_id: int, rate: Decimal
     ) -> ExchangeRate:
-        with self._factory.create_connection() as conn:
-            cursor = conn.cursor()
-            created_id = self._exchange_rate_dao.insert(
-                cursor=cursor,
-                base_currency_id=base_currency_id,
-                target_currency_id=target_currency_id,
-                rate=rate,
-            )
-            created_exchange_rate = self._exchange_rate_dao.fetch_by_id(
-                cursor=cursor, id=created_id
-            )
-            if not created_exchange_rate:
-                raise SystemError('Не удалось найти только что созданный обменный курс')
-            return ExchangeRate.model_validate(dict(created_exchange_rate))
+        try:
+            with self._factory.create_connection() as conn:
+                cursor = conn.cursor()
+                created_id = self._exchange_rate_dao.insert(
+                    cursor=cursor,
+                    base_currency_id=base_currency_id,
+                    target_currency_id=target_currency_id,
+                    rate=rate,
+                )
+                created_exchange_rate = self._exchange_rate_dao.fetch_by_id(
+                    cursor=cursor, id=created_id
+                )
+                if not created_exchange_rate:
+                    raise SystemError(
+                        'Не удалось найти только что созданный обменный курс'
+                    )
+                return ExchangeRate.model_validate(dict(created_exchange_rate))
+        except sqlite3.IntegrityError as e:
+            raise ConflictError(
+                f'Не удалось создать обменный курс с ids '
+                f'({base_currency_id}, {target_currency_id}): '
+                f'данные конфликтуют с уже существующими.'
+            ) from e
 
     def update(
         self, base_currency_id: int, target_currency_id: int, rate: Decimal

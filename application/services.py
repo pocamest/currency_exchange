@@ -5,6 +5,7 @@ from domain import (
     AbstractCurrencyRepository,
     AbstractExchangeRateRepository,
     ConfigurationError,
+    ConflictError,
     Currency,
     ExchangeRate,
     NotFoundError,
@@ -164,14 +165,22 @@ class ExchangeRateService:
         base_currency_model, target_currency_model = self._find_currencies_by_codes(
             base_code=base_currency_code, target_code=target_currency_code
         )
-        exchange_rate_model = self._exchange_rate_repo.create(
-            base_currency_id=base_currency_model.id,
-            target_currency_id=target_currency_model.id,
-            rate=rate,
-        )
-        return self._build_exchange_rate_dto(
-            exchange_rate_model, base_currency_model, target_currency_model
-        )
+        try:
+            exchange_rate_model = self._exchange_rate_repo.create(
+                base_currency_id=base_currency_model.id,
+                target_currency_id=target_currency_model.id,
+                rate=rate,
+            )
+            return self._build_exchange_rate_dto(
+                exchange_rate_model, base_currency_model, target_currency_model
+            )
+        except ConflictError as e:
+            raise ConflictError(
+                f'Не удалось создать обменный курс с кодами '
+                f'({base_currency_code}, {target_currency_code}): '
+                f'данные конфликтуют с уже существующими.'
+            ) from e
+
 
     def update_exchange_rate(
         self, base_currency_code: str, target_currency_code: str, rate: Decimal

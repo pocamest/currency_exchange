@@ -108,6 +108,8 @@ class ExchangeRateController:
             )
         except NotFoundError as e:
             return 404, ErrorDTO(message=str(e))
+        except ConflictError as e:
+            return 409, ErrorDTO(message=str(e))
         return 201, created_exchange_rate_dto
 
     def update_exchange_rate(
