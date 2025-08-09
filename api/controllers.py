@@ -14,7 +14,7 @@ from api.dtos import (
     ExchangeRateUpdateDTO,
 )
 from application import CurrencyService, ExchangeRateService
-from domain import NotFoundError
+from domain import ConflictError, NotFoundError
 
 
 class CurrencyController:
@@ -28,9 +28,7 @@ class CurrencyController:
     def get_currency_by_code(self, code: str) -> tuple[int, CurrencyReadDTO | ErrorDTO]:
         code_match = re.fullmatch(r'[A-Z]{3}', code)
         if not code_match:
-            return 400, ErrorDTO(
-                    message=f'Код {code} некорректен'
-                )
+            return 400, ErrorDTO(message=f'Код {code} некорректен')
         try:
             currency_dto = self._currency_service.get_currency_by_code(code=code)
             return 200, currency_dto
@@ -47,9 +45,12 @@ class CurrencyController:
                 message='Неверные или отсутствующие данные в теле запроса'
             )
 
-        created_currency_dto = self._currency_service.create_currency(
-            code=request_dto.code, full_name=request_dto.name, sign=request_dto.sign
-        )
+        try:
+            created_currency_dto = self._currency_service.create_currency(
+                code=request_dto.code, full_name=request_dto.name, sign=request_dto.sign
+            )
+        except ConflictError as e:
+            return 409, ErrorDTO(message=str(e))
         return 201, created_currency_dto
 
 
@@ -97,11 +98,16 @@ class ExchangeRateController:
             return 400, ErrorDTO(
                 message='Неверные или отсутствующие данные в теле запроса'
             )
-        created_exchange_rate_dto = self._exchange_rate_service.create_exchange_rate(
-            base_currency_code=request_dto.base_currency_code,
-            target_currency_code=request_dto.target_currency_code,
-            rate=request_dto.rate,
-        )
+        try:
+            created_exchange_rate_dto = (
+                self._exchange_rate_service.create_exchange_rate(
+                    base_currency_code=request_dto.base_currency_code,
+                    target_currency_code=request_dto.target_currency_code,
+                    rate=request_dto.rate,
+                )
+            )
+        except NotFoundError as e:
+            return 404, ErrorDTO(message=str(e))
         return 201, created_exchange_rate_dto
 
     def update_exchange_rate(
