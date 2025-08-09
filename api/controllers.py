@@ -118,7 +118,7 @@ class ExchangeRateController:
         currency_codes_match = re.fullmatch(r'([A-Z]{3})([A-Z]{3})', currency_codes)
         if not currency_codes_match:
             return 400, ErrorDTO(
-                message='Коды некорректны или валют пары отсутствуют в адресе'
+                message='Коды валют некорректны или отсутствуют в адресе'
             )
         base_code = currency_codes_match.group(1)
         target_code = currency_codes_match.group(2)
