@@ -11,25 +11,28 @@ def create_handler(router: Router) -> type[BaseHTTPRequestHandler]:
         _router = router
 
         def do_GET(self) -> None:
-            parsed_path = urlparse(self.path)
-            path_only = parsed_path.path
-            handler, path_params = self._router.resolve(
-                method=self.command, path=path_only
-            )
-            if not handler or path_params is None:
-                self._send_json_error(404, 'Ресурс не найден')
-                return
+            try:
+                parsed_path = urlparse(self.path)
+                path_only = parsed_path.path
+                handler, path_params = self._router.resolve(
+                    method=self.command, path=path_only
+                )
+                if not handler or path_params is None:
+                    self._send_json_error(404, 'Ресурс не найден')
+                    return
 
-            if parsed_path.query:
-                parsed_query_params = parse_qs(parsed_path.query)
-                query_params = {k: v[0] for k, v in parsed_query_params.items()}
-            else:
-                query_params = {}
+                if parsed_path.query:
+                    parsed_query_params = parse_qs(parsed_path.query)
+                    query_params = {k: v[0] for k, v in parsed_query_params.items()}
+                else:
+                    query_params = {}
 
-            kwargs = {**path_params, **query_params}
+                kwargs = {**path_params, **query_params}
 
-            status_code, payload = handler(**kwargs)
-            self._send_json_response(status_code=status_code, payload=payload)
+                status_code, payload = handler(**kwargs)
+                self._send_json_response(status_code=status_code, payload=payload)
+            except Exception as e:
+                self._send_json_error(500, f'Внутренняя ошибка сервера: {e}')
 
         def do_POST(self) -> None:
             try:
